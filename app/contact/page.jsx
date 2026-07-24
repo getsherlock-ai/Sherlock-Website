@@ -1,5 +1,5 @@
 import Reveal from "@/components/Reveal";
-import ContactForm from "@/components/ContactForm";
+import DemoContactCard from "@/components/DemoContactCard";
 
 export const metadata = {
   title: "Book a demo",
@@ -56,7 +56,7 @@ export default function Contact() {
         </Reveal>
 
         <Reveal delay={100}>
-          <ContactForm />
+          <DemoContactCard />
         </Reveal>
       </div>
     </>

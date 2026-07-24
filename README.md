@@ -73,5 +73,6 @@ The app now requires a server-capable Next.js runtime (Route Handlers, Server Co
 
 ## Notes
 
-- The contact form confirms locally; wire it to a form backend before launch (see `components/ContactForm.jsx`).
+- The contact page opens a pre-addressed email to `team@sherlock.dev`; replace
+  it with a server-backed form if structured lead capture is needed later.
 - Fonts (Space Grotesk, JetBrains Mono) are fetched at build time by `next/font`.

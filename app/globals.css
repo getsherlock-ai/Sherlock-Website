@@ -2926,7 +2926,7 @@ h3 {
 /* `.contact-grid` is one-off page composition — built with Tailwind
    utilities in contact/page.jsx. */
 
-.contact-form {
+.contact-card {
   background: var(--bg-raise);
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
@@ -2936,42 +2936,24 @@ h3 {
   gap: 18px;
 }
 
-.field label {
-  display: block;
-  font-size: 13px;
+.contact-card h2 {
+  font-size: clamp(1.7rem, 3vw, 2.25rem);
+  line-height: 1.08;
+}
+
+.contact-card > p {
   color: var(--ink-dim);
-  margin-bottom: 7px;
-  font-weight: 500;
+  line-height: 1.65;
 }
 
-.field input,
-.field textarea,
-.field select {
-  width: 100%;
-  background: var(--bg-inset);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  padding: 11px 14px;
-  color: var(--ink);
-  font: inherit;
-  font-size: 14.5px;
+.contact-card .btn {
+  align-self: flex-start;
 }
 
-.field input:focus,
-.field textarea:focus,
-.field select:focus {
-  outline: none;
-  border-color: var(--brand);
-  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.2);
-}
-
-.form-ok {
-  border: 1px solid rgba(62, 207, 142, 0.4);
-  background: var(--verified-soft);
-  color: var(--verified);
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 14px;
+.contact-card .contact-card-note {
+  color: var(--ink-faint);
+  font-size: 13px;
+  margin-top: 4px;
 }
 
 
