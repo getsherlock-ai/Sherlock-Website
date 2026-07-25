@@ -2,6 +2,12 @@
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"main": ".open-next/worker.js",
 	"name": "sherlock-website",
+
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+
 	"compatibility_date": "2026-07-24",
 	"compatibility_flags": [
 		"nodejs_compat",
