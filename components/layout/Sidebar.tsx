@@ -12,7 +12,6 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import UserMenu from "@/features/auth/UserMenu";
-import Logo from "@/components/Logo";
 import styles from "./workspace.module.css";
 import type { ConnectedRepositoriesResponse } from "@/features/repositories/types";
 import RepositoryPickerModal from "@/features/repositories/components/RepositoryPickerModal";
@@ -294,7 +293,6 @@ export default function Sidebar() {
         <div className={styles.sidebarHeader}>
           {isOpen ? (
             <Link href="/" className={styles.wordmark} aria-label="Sherlock home">
-              <Logo className={styles.logo} />
               <span>Sherlock<span className={styles.period}>.</span></span>
             </Link>
           ) : null}
@@ -314,7 +312,7 @@ export default function Sidebar() {
             aria-expanded={isOpen && showRepositories}
             title={!isOpen ? "Repositories" : undefined}
             onClick={toggleRepositories}
-            className="flex h-9 w-full items-center gap-3 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground"
+            className="flex h-9 w-full items-center gap-3 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground"
           >
             <FolderGit2 className="h-4 w-4 shrink-0 text-[color:var(--brand)] transition-transform duration-300 ease-out" />
             <span
@@ -368,7 +366,7 @@ export default function Sidebar() {
                         if (window.innerWidth <= 760) setIsOpen(false);
                       }}
                       aria-current={isActive ? "page" : undefined}
-                      className={`${styles.repositoryLink} relative flex min-h-9 w-full items-center rounded-md px-2 text-left text-xs font-medium transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground ${
+                      className={`${styles.repositoryLink} relative flex min-h-9 w-full items-center rounded-md px-2 text-left text-sm font-medium transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground ${
                         isActive ? "bg-surface text-foreground" : "text-muted"
                       }`}
                     >
@@ -378,7 +376,7 @@ export default function Sidebar() {
                 })}
                 {repositoryState.status === "ready" &&
                 repositories.length === 0 ? (
-                  <p className="px-2 py-2 text-xs text-muted">
+                  <p className="px-2 py-2 text-sm text-muted">
                     Sherlock currently has no repository access.
                   </p>
                 ) : null}
@@ -386,7 +384,7 @@ export default function Sidebar() {
                   <button
                     type="button"
                     onClick={() => setIsRepositoryPickerOpen(true)}
-                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
+                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
                   >
                     Browse repositories
                   </button>
@@ -395,7 +393,7 @@ export default function Sidebar() {
                     href={manageInstallation.manageUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
+                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
                   >
                     Manage GitHub access
                   </a>
@@ -406,7 +404,7 @@ export default function Sidebar() {
                     disabled={
                       isInstalling || repositoryState.status === "loading"
                     }
-                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground disabled:cursor-wait disabled:opacity-60"
+                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground disabled:cursor-wait disabled:opacity-60"
                   >
                     {isInstalling
                       ? "Opening GitHub..."

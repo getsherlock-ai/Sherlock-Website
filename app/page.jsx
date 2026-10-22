@@ -1,7 +1,6 @@
 import Link from "next/link";
 import GitHubSignInButton from "@/components/auth/GitHubSignInButton";
-import Logo from "@/components/Logo";
-import InvestigationSketch from "@/components/InvestigationSketch";
+import LandingAnimation from "@/components/LandingAnimation";
 import styles from "./home.module.css";
 
 export const metadata = {
@@ -15,7 +14,6 @@ export default function Home() {
       <a href="#introduction" className={styles.skipLink}>Skip to content</a>
       <header className={styles.header}>
         <Link href="/" className={styles.brand} aria-label="Sherlock home">
-          <Logo className={styles.mark} />
           <span>Sherlock<span className={styles.brandPeriod}>.</span></span>
         </Link>
       </header>
@@ -30,7 +28,7 @@ export default function Home() {
           </div>
         </div>
         <div className={styles.illustration} aria-hidden="true">
-          <InvestigationSketch magnifierClassName={styles.magnifier} />
+          <LandingAnimation className={styles.heroAnimation} />
         </div>
       </section>
       <footer className={styles.footer}>

@@ -1,6 +1,5 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import Logo from "@/components/Logo";
 import styles from "./workspace.module.css";
 
 export default function ConnectionShell({ children }: { children: ReactNode }) {
@@ -8,7 +7,6 @@ export default function ConnectionShell({ children }: { children: ReactNode }) {
     <div className={styles.connection}>
       <header className={styles.connectionHeader}>
         <Link href="/" className={styles.wordmark} aria-label="Sherlock home">
-          <Logo className={styles.logo} />
           <span>Sherlock<span className={styles.period}>.</span></span>
         </Link>
       </header>

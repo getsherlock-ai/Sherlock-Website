@@ -22,7 +22,6 @@
 .header { padding: 28px 0; border-bottom: 1px solid #f3f0e729; }
 .brand { display: inline-flex; align-items: center; gap: 9px; font-size: 25px; font-weight: 600; letter-spacing: -1.3px; line-height: 1; }
 .brandPeriod { color: var(--accent); }
-.mark { width: 39px; height: 36px; object-fit: contain; filter: grayscale(1) brightness(1.2); }
 .hero {
   display: grid;
   grid-template-columns: 1.05fr 1fr;
@@ -89,17 +88,11 @@
 .signIn:disabled { opacity: 0.7; cursor: wait; }
 .signIn svg { width: 17px; height: 17px; }
 .action :global(.auth-signin-error) { position: static; max-width: 280px; margin-top: 8px; white-space: normal; color: #f2b194; }
-.illustration { width: 100%; max-width: 560px; justify-self: center; padding-top: 20px; }
-.illustration svg { display: block; width: 100%; height: auto; }
-.magnifier {
-  transform-origin: 317px 233px;
-  animation: investigate 10s ease-in-out infinite;
+.illustration {
+  width: 100%; max-width: 640px; aspect-ratio: 1; justify-self: center;
+  overflow: hidden;
 }
-@keyframes investigate {
-  0%, 100% { transform: translate(0, 0) rotate(0deg); }
-  40% { transform: translate(-6px, -4px) rotate(-1.5deg); }
-  70% { transform: translate(4px, -1px) rotate(1deg); }
-}
+.heroAnimation { position: relative; width: 100%; height: 100%; }
 .footer { padding: 23px 0 25px; border-top: 1px solid #f3f0e729; color: var(--muted); font-size: 11px; }
 .footer a { color: var(--ink); white-space: nowrap; }
 .footer a span { display: inline-block; margin-left: 6px; color: var(--accent); }
@@ -110,9 +103,16 @@
 @media (min-width: 1100px) {
   .hero { max-width: 1640px; grid-template-columns: 1fr 1.12fr; }
   .illustration {
-    width: min(120%, calc(119svh - 282px));
+    width: min(120%, calc(100svh - 250px));
     max-width: 1100px;
     padding-top: 0;
+  }
+}
+@media (min-width: 641px) and (max-width: 1099px) {
+  .illustration {
+    width: min(145%, calc(100svh - 230px));
+    max-width: none;
+    justify-self: end;
   }
 }
 @media (max-width: 900px) {
@@ -123,7 +123,6 @@
   .landing { padding-inline: 25px; }
   .header { padding: 24px 0; gap: 12px; }
   .brand { font-size: 23px; }
-  .mark { width: 33px; height: 31px; }
   .hero { grid-template-columns: 1fr; gap: 4px; padding: 34px 0 26px; }
   .copy h1 { font-size: clamp(49px, 15.1vw, 80px); }
   .description { margin: 22px 0 25px; max-width: 340px; font-size: 15px; line-height: 1.7; }
@@ -138,5 +137,4 @@
 }
 @media (prefers-reduced-motion: reduce) {
   .signIn { transition: none; }
-  .magnifier { animation: none; }
 }

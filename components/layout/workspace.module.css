@@ -41,11 +41,10 @@
 }
 .sidebarOpen { width: 264px; }
 .sidebarClosed { width: 52px; padding-inline: 8px; }
-.sidebarHeader { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 28px; min-height: 36px; }
+.sidebarHeader { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; min-height: 36px; }
 .sidebarClosed .sidebarHeader { justify-content: center; }
-.sidebarHeader .wordmark { font-size: 22px; }
+.sidebarHeader .wordmark { margin-left: 9px; font-size: 22px; }
 .wordmark { display: inline-flex; align-items: center; gap: 9px; font-size: 25px; font-weight: 600; letter-spacing: -1.3px; white-space: nowrap; }
-.logo { display: block; width: 35px; height: 33px; object-fit: contain; filter: grayscale(1) brightness(1.2); }
 .period { color: var(--brand); }
 .sidebarAccount { padding: 12px 4px 0; }
 .sidebarClosed .sidebarAccount { padding-inline: 0; }

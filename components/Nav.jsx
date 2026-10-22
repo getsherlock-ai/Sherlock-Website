@@ -4,7 +4,6 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Menu, X } from "lucide-react";
-import Logo from "./Logo";
 import GitHubSignInButton from "./auth/GitHubSignInButton";
 
 const LINKS = [
@@ -37,7 +36,6 @@ export default function Nav() {
     <header className="nav">
       <div className="wrap nav-inner">
         <Link href="/" className="brand" onClick={() => setOpen(false)}>
-          <Logo />
           Sherlock<span className="brand-period">.</span>
         </Link>
         <div className="nav-cta">
