@@ -125,7 +125,7 @@ export default function InvestigationDetail({
         cancelled ||
         authExpired ||
         !currentInvestigation ||
-        !shouldPollInvestigation(currentInvestigation.status)
+        !(shouldPollInvestigation(currentInvestigation.status) || currentInvestigation.projectionPending)
       ) {
         return;
       }
@@ -312,7 +312,7 @@ export default function InvestigationDetail({
       try {
         const result = await getInvestigation(investigationId, {
           // Media renewals must never receive a version-based 304.
-          etag: kind === "media" ? null : etag,
+          etag: kind === "media" || currentInvestigation?.projectionPending ? null : etag,
           signal: controller.signal,
         });
         if (cancelled) return;
@@ -405,7 +405,7 @@ export default function InvestigationDetail({
         void load("media");
       } else if (
         currentInvestigation &&
-        shouldPollInvestigation(currentInvestigation.status)
+        (shouldPollInvestigation(currentInvestigation.status) || currentInvestigation.projectionPending)
       ) {
         clearPollTimer();
         void load("poll");
@@ -494,6 +494,12 @@ export default function InvestigationDetail({
           <div className="mt-4 rounded-sm border border-red-900/70 bg-red-950/20 px-3 py-2 text-sm text-red-200">
             {errors[0]}
           </div>
+        ) : null}
+
+        {investigation.projectionPending ? (
+          <p role="status" className="mt-4 text-sm text-muted">
+            Loading final evidence and delivery details…
+          </p>
         ) : null}
 
         {state.refreshError ? (

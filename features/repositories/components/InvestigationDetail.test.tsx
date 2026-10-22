@@ -122,6 +122,22 @@ afterEach(() => {
 });
 
 describe("investigation UI states", () => {
+  test("refreshes a completed execution until its replay, diff, and delivery finish saving", async () => {
+    const pending = { ...investigation("completed", 4), projectionPending: true };
+    const ready = { ...investigationWithMedia("completed", 4, "published"), projectionPending: false };
+    ready.fix = { summary: "Fix search", diffTruncated: false,
+      diff: "diff --git a/server.js b/server.js\n--- a/server.js\n+++ b/server.js\n@@ -1 +1 @@\n-old\n+fixed\n" };
+    ready.pullRequest = { url: "https://github.com/demo/repo/pull/16", title: "Fix search" };
+    serviceMocks.getInvestigation.mockResolvedValueOnce(modified(pending)).mockResolvedValue(modified(ready));
+    render(<InvestigationDetail investigationId={INVESTIGATION_ID} />);
+    expect(await screen.findByRole("button", { name: "server.js" })).toBeInTheDocument();
+    expect(screen.getAllByAltText("Before capture screenshot")[0]).toHaveAttribute("src", "https://signed.example/capture-published.png");
+    expect(serviceMocks.getInvestigation).toHaveBeenNthCalledWith(2, INVESTIGATION_ID,
+      expect.objectContaining({ etag: null }));
+    await new Promise((resolve) => setTimeout(resolve, 70));
+    expect(serviceMocks.getInvestigation).toHaveBeenCalledTimes(2);
+  });
+
   test("renders the loading state while the first request is pending", () => {
     serviceMocks.getInvestigation.mockReturnValue(new Promise(() => {}));
     render(<InvestigationDetail investigationId={INVESTIGATION_ID} />);

@@ -11,6 +11,24 @@ afterEach(() => {
 });
 
 describe("GitHub dashboard transport", () => {
+  test("waits for authenticated GitHub reconciliation before reading the repository list", async () => {
+    const fetchMock = vi.fn(async (input: RequestInfo | URL) => Response.json(
+      String(input) === "/api/installations/refresh/" ? { refreshed: true }
+        : String(input) === "/api/repositories/" ? { repositories: [] } : { installations: [] }));
+    vi.stubGlobal("fetch", fetchMock);
+    await getConnectedRepositories({ refresh: true });
+    expect(fetchMock.mock.calls.map(([url]) => url)).toEqual([
+      "/api/installations/refresh/", "/api/repositories/", "/api/installations/",
+    ]);
+    expect(fetchMock).toHaveBeenNthCalledWith(1, "/api/installations/refresh/", expect.objectContaining({ method: "POST", body: "{}" }));
+  });
+
+  test("a failed reconciliation cannot silently return stale permissions", async () => {
+    const fetchMock = vi.fn().mockResolvedValue(new Response(null, { status: 503 }));
+    vi.stubGlobal("fetch", fetchMock);
+    await expect(getConnectedRepositories({ refresh: true })).rejects.toMatchObject({ status: 503 });
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
   test("combines authorized repositories with active installations", async () => {
     vi.stubGlobal(
       "fetch",

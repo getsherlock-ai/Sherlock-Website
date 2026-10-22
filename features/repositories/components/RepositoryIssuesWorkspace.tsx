@@ -123,7 +123,7 @@ export default function RepositoryIssuesWorkspace({
     } catch (error) {
       setIssueActionError(
         error instanceof ApiClientError && error.status === 404
-          ? "No investigation exists for this issue yet. Comment “investigate” on the GitHub issue first."
+          ? "No investigation exists for this issue yet. Comment “/sherlock investigate” on the GitHub issue first."
           : error instanceof Error
             ? error.message
             : "Unable to open this issue investigation.",

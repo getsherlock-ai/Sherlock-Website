@@ -30,7 +30,12 @@ async function apiJson<T>(url: string, init?: RequestInit): Promise<T> {
   return (await response.json()) as T;
 }
 
-export async function getConnectedRepositories(): Promise<ConnectedRepositoriesResponse> {
+export async function getConnectedRepositories(options: { refresh?: boolean } = {}): Promise<ConnectedRepositoriesResponse> {
+  if (options.refresh) {
+    await apiJson("/api/installations/refresh/", {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: "{}",
+    });
+  }
   const [repositoriesResponse, installationsResponse] = await Promise.all([
     apiJson<{ repositories: ConnectedRepositoriesResponse["repositories"] }>(
       "/api/repositories/",

@@ -11,6 +11,7 @@ import {
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import UserMenu from "@/features/auth/UserMenu";
+import type { ConnectedRepositoriesResponse } from "@/features/repositories/types";
 import RepositoryPickerModal from "@/features/repositories/components/RepositoryPickerModal";
 import {
   getConnectedRepositories,
@@ -49,25 +50,47 @@ export default function Sidebar() {
   const [isInstalling, setIsInstalling] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const showRepositories = repositoriesOpen;
+  const repositoryRequest =
+    useRef<Promise<ConnectedRepositoriesResponse | null> | null>(null);
 
-  const loadRepositories = useCallback(async () => {
-    setRepositoryState({ status: "loading" });
+  const loadRepositories = useCallback((background = false) => {
+    if (repositoryRequest.current) return repositoryRequest.current;
+    const request = (async () => {
+      if (!background) setRepositoryState({ status: "loading" });
 
-    try {
-      const response = await getConnectedRepositories();
-      setRepositoryState({ status: "ready", ...response });
-      return response;
-    } catch (error) {
-      setRepositoryState({
-        status: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Unable to load GitHub repositories.",
-      });
-      return null;
-    }
+      try {
+        const response = await getConnectedRepositories({ refresh: true });
+        setRepositoryState({ status: "ready", ...response });
+        return response;
+      } catch (error) {
+        setRepositoryState({
+          status: "error",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Unable to load GitHub repositories.",
+        });
+        return null;
+      }
+    })();
+    repositoryRequest.current = request;
+    void request.finally(() => {
+      if (repositoryRequest.current === request) repositoryRequest.current = null;
+    });
+    return request;
   }, []);
+
+  useEffect(() => {
+    const refreshOnReturn = () => {
+      if (document.visibilityState !== "hidden") void loadRepositories(true);
+    };
+    window.addEventListener("focus", refreshOnReturn);
+    document.addEventListener("visibilitychange", refreshOnReturn);
+    return () => {
+      window.removeEventListener("focus", refreshOnReturn);
+      document.removeEventListener("visibilitychange", refreshOnReturn);
+    };
+  }, [loadRepositories]);
 
   useEffect(() => {
     if (callbackHandled.current) return;
@@ -385,6 +408,8 @@ export default function Sidebar() {
                 ) : manageInstallation ? (
                   <a
                     href={manageInstallation.manageUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
                   >
                     Manage GitHub access

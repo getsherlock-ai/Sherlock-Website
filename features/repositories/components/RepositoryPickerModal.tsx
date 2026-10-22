@@ -166,6 +166,8 @@ export default function RepositoryPickerModal({
           {installations[0] ? (
             <a
               href={installations[0].manageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
             >
               <Settings className="size-3.5" aria-hidden="true" />

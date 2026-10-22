@@ -126,6 +126,7 @@ export type InvestigationPullRequest =
 
 export type Investigation = {
   investigationId: string;
+  projectionPending?: boolean;
   issueTitle: string | null;
   status: InvestigationStatus;
   error: string | null;

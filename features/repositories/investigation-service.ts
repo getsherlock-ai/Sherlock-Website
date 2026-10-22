@@ -66,6 +66,7 @@ export async function getInvestigation(
 
 type BackendInvestigation = {
   id: string;
+  projectionPending?: boolean;
   issueTitle?: string | null;
   status: InvestigationStatus;
   error?: string | null;
@@ -134,6 +135,7 @@ function mapInvestigation(payload: BackendInvestigation): Investigation {
   }
   return {
     investigationId: payload.id,
+    projectionPending: payload.projectionPending === true,
     issueTitle: payload.issueTitle ?? null,
     status: payload.status,
     error: payload.error ?? null,

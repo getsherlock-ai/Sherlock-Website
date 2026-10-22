@@ -57,6 +57,14 @@ afterEach(() => {
 });
 
 describe("investigation transport", () => {
+  test("preserves the publication-pending flag separately from execution completion", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+      ...backendInvestigation("completed"), projectionPending: true,
+    })));
+    const result = await getInvestigation(INVESTIGATION_ID);
+    expect(result.status).toBe("modified");
+    if (result.status === "modified") expect(result.investigation.projectionPending).toBe(true);
+  });
   test("maps backend data and hydrates an authorized exact diff independently", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
