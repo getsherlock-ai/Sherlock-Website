@@ -9,6 +9,7 @@ import {
 import React from "react";
 import { afterEach, describe, expect, test, vi } from "vitest";
 import { ApiClientError } from "../api";
+import { LAST_SELECTED_REPOSITORY_ID_KEY } from "../github-state";
 import type { Investigation, InvestigationStatus } from "../types";
 
 const serviceMocks = vi.hoisted(() => ({
@@ -112,6 +113,7 @@ function modified(
 
 afterEach(() => {
   cleanup();
+  window.localStorage.removeItem(LAST_SELECTED_REPOSITORY_ID_KEY);
   vi.useRealTimers();
   Object.defineProperty(document, "visibilityState", {
     configurable: true,
@@ -122,6 +124,35 @@ afterEach(() => {
 });
 
 describe("investigation UI states", () => {
+  test("returns direct investigation links to their repository even with stale navigation context", async () => {
+    window.localStorage.setItem(LAST_SELECTED_REPOSITORY_ID_KEY, "999");
+    serviceMocks.getInvestigation.mockResolvedValue(modified({
+      ...investigation("completed"), repositoryId: "555",
+    }));
+    render(<InvestigationDetail investigationId={INVESTIGATION_ID} repositoryId="123" />);
+
+    await screen.findByRole("heading", { level: 1, name: "Broken dashboard" });
+    expect(screen.getByRole("link", { name: "Back to issues" })).toHaveAttribute("href", "/dashboard/555");
+  });
+
+  test("returns to the selected repo for older responses without repository context", async () => {
+    window.localStorage.setItem(LAST_SELECTED_REPOSITORY_ID_KEY, "555");
+    serviceMocks.getInvestigation.mockResolvedValue(modified("completed"));
+    render(<InvestigationDetail investigationId={INVESTIGATION_ID} />);
+
+    await screen.findByRole("heading", { level: 1, name: "Broken dashboard" });
+    expect(screen.getByRole("link", { name: "Back to issues" })).toHaveAttribute("href", "/dashboard/555");
+  });
+
+  test("never sends an investigation without repo context to the dashboard home", async () => {
+    serviceMocks.getInvestigation.mockResolvedValue(modified("completed"));
+    render(<InvestigationDetail investigationId={INVESTIGATION_ID} />);
+
+    await screen.findByRole("heading", { level: 1, name: "Broken dashboard" });
+    expect(screen.queryByRole("link", { name: /Back to/ })).not.toBeInTheDocument();
+    expect(screen.getByText("Back to issues")).toHaveAttribute("aria-disabled", "true");
+  });
+
   test("refreshes a completed execution until its replay, diff, and delivery finish saving", async () => {
     const pending = { ...investigation("completed", 4), projectionPending: true };
     const ready = { ...investigationWithMedia("completed", 4, "published"), projectionPending: false };
@@ -171,8 +202,16 @@ describe("investigation UI states", () => {
     "renders the %s terminal state",
     async (status) => {
       serviceMocks.getInvestigation.mockResolvedValue(modified(status));
-      render(<InvestigationDetail investigationId={INVESTIGATION_ID} />);
-      expect(await screen.findByText(INVESTIGATION_ID)).toBeInTheDocument();
+      render(
+        <InvestigationDetail investigationId={INVESTIGATION_ID} repositoryId="123" />,
+      );
+      expect(
+        await screen.findByRole("heading", { level: 1, name: "Broken dashboard" }),
+      ).toBeInTheDocument();
+      expect(screen.getByText(INVESTIGATION_ID)).toBeInTheDocument();
+      expect(screen.getByRole("link", { name: "Back to issues" })).toHaveAttribute(
+        "href", "/dashboard/123",
+      );
       expect(screen.getByText(status === "completed" ? "Completed" : "Failed"))
         .toBeInTheDocument();
     },

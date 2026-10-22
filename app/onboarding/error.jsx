@@ -1,32 +1,20 @@
 "use client";
 
-// Generic backstop — specific, safe backend messages are rendered by the
-// page itself. Never shows error internals.
+import { AlertCircle } from "lucide-react";
+import ConnectionShell from "@/components/layout/ConnectionShell";
+import styles from "@/components/layout/workspace.module.css";
+
 export default function OnboardingError({ reset }) {
   return (
-    <section className="auth-section">
-      <div className="wrap">
-        <div className="panel auth-panel">
-          <div className="panel-bar">
-            <span className="panel-dots">
-              <i />
-              <i />
-              <i />
-            </span>
-            <span>sherlock — onboarding</span>
-          </div>
-          <div className="auth-panel-body">
-            <span className="chip chip-red">something broke</span>
-            <h1>We hit a snag</h1>
-            <p>Something went wrong while loading onboarding. Please try again.</p>
-            <div className="auth-panel-actions">
-              <button type="button" className="btn btn-primary" onClick={reset}>
-                Try again
-              </button>
-            </div>
-          </div>
+    <ConnectionShell>
+      <section className={styles.connectionCard}>
+        <div className={styles.connectionIcon}><AlertCircle aria-hidden="true" /></div>
+        <h1>Couldn’t load your connection.</h1>
+        <p>Something went wrong while connecting to GitHub. Give it another try.</p>
+        <div className={styles.connectionActions}>
+          <button type="button" className="btn btn-primary" onClick={reset}>Try again</button>
         </div>
-      </div>
-    </section>
+      </section>
+    </ConnectionShell>
   );
 }

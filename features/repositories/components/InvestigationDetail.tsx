@@ -16,9 +16,11 @@ import {
   Pin,
   XCircle,
 } from "lucide-react";
+import Link from "next/link";
 import type { ReactNode } from "react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { ApiClientError } from "../api";
+import { LAST_SELECTED_REPOSITORY_ID_KEY } from "../github-state";
 import {
   getExactInvestigationDiff,
   getInvestigation,
@@ -35,6 +37,8 @@ import type {
 } from "../types";
 import CodeDiff from "./CodeDiff";
 import ReplayPlayer from "./ReplayPlayer";
+import InvestigationSkeleton from "./InvestigationSkeleton";
+import styles from "./repository.module.css";
 
 type PageState =
   | { status: "loading" }
@@ -59,15 +63,38 @@ type DetailRequestKind = "initial" | "poll" | "media";
 
 export default function InvestigationDetail({
   investigationId,
+  repositoryId,
 }: {
   investigationId: string;
+  repositoryId?: string;
 }) {
   const [state, setState] = useState<PageState>({ status: "loading" });
+  const [selectedRepositoryId, setSelectedRepositoryId] = useState<string | null>(
+    null,
+  );
+  const currentRepositoryId =
+    (state.status === "ready" ? state.investigation.repositoryId : null) ??
+    repositoryId ??
+    selectedRepositoryId;
+  const issuesHref =
+    currentRepositoryId && /^[0-9]+$/.test(currentRepositoryId)
+      ? `/dashboard/${currentRepositoryId}`
+      : null;
   const [activeReplayPhase, setActiveReplayPhase] =
     useState<ReplayPhase>("before");
   const requestMediaRefreshRef = useRef<(() => void) | null>(null);
   const requestMediaRefresh = useCallback(() => {
     requestMediaRefreshRef.current?.();
+  }, []);
+
+  useEffect(() => {
+    try {
+      setSelectedRepositoryId(
+        window.localStorage.getItem(LAST_SELECTED_REPOSITORY_ID_KEY),
+      );
+    } catch {
+      // The API and route context still work when browser storage is unavailable.
+    }
   }, []);
 
   useEffect(() => {
@@ -427,12 +454,13 @@ export default function InvestigationDetail({
   }, [investigationId]);
 
   if (state.status === "loading") {
-    return <InvestigationSkeleton />;
+    return <InvestigationSkeleton backLink={<IssuesBackLink href={issuesHref} />} />;
   }
 
   if (state.status === "not-found") {
     return (
       <StatusShell
+        issuesHref={issuesHref}
         title="Investigation not found"
         message="No investigation exists for this ID."
       />
@@ -442,6 +470,7 @@ export default function InvestigationDetail({
   if (state.status === "error") {
     return (
       <StatusShell
+        issuesHref={issuesHref}
         title={state.authExpired ? "Session expired" : "Something went wrong"}
         message={state.message}
         actionHref={state.authExpired ? "/" : undefined}
@@ -468,27 +497,19 @@ export default function InvestigationDetail({
   );
 
   return (
-    <section className="min-w-0 pb-5">
+    <section className={`${styles.investigation} min-w-0 pb-5`}>
       <div className="flex min-h-8 items-center justify-between gap-4">
-        <h1 className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Investigation
-        </h1>
+        <IssuesBackLink href={issuesHref} />
         <InvestigationStatusBadge status={investigation.status} />
       </div>
 
       <div className="mt-6">
-        <div className="flex flex-wrap items-start justify-between gap-4">
-          <div>
-            <h2 className="break-all text-xl font-semibold">
-              {investigation.investigationId}
-            </h2>
-            {investigation.issueTitle ? (
-              <p className="mt-1 text-sm text-muted">
-                {investigation.issueTitle}
-              </p>
-            ) : null}
-          </div>
-        </div>
+        <h1 className="break-words text-2xl font-semibold leading-snug">
+          {investigation.issueTitle?.trim() || "Untitled issue"}
+        </h1>
+        <p className="mt-2 break-all font-mono text-xs text-muted">
+          {investigation.investigationId}
+        </p>
 
         {errors.length > 0 ? (
           <div className="mt-4 rounded-sm border border-red-900/70 bg-red-950/20 px-3 py-2 text-sm text-red-200">
@@ -575,7 +596,7 @@ export default function InvestigationDetail({
               className="min-h-36"
             >
               {summary ? (
-                <p className="px-4 py-4 text-sm leading-6 text-muted">
+                <p className="px-4 py-4 text-sm leading-6 text-white">
                   {summary}
                 </p>
               ) : null}
@@ -583,7 +604,7 @@ export default function InvestigationDetail({
 
             <Panel
               title="Pull Request"
-              icon={<GitPullRequestArrow className="h-4 w-4 text-purple-300" />}
+              icon={<GitPullRequestArrow className="h-4 w-4 text-[color:var(--brand)]" />}
             >
               <PullRequestCard
                 error={pullRequestError}
@@ -1097,12 +1118,37 @@ function getTimelineBadgeClasses(status: BotActionTimelineStepStatus) {
   return "border-border bg-background text-muted";
 }
 
+function IssuesBackLink({ href }: { href: string | null }) {
+  const className =
+    "inline-flex min-h-8 items-center gap-1.5 rounded-sm text-sm font-medium text-muted transition-colors hover:text-foreground focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-foreground";
+  const content = (
+    <>
+      <ChevronLeft className="size-4" aria-hidden="true" />
+      Back to issues
+    </>
+  );
+  if (!href) {
+    return (
+      <span aria-disabled="true" className={`${className} opacity-50`}>
+        {content}
+      </span>
+    );
+  }
+  return (
+    <Link href={href} className={className}>
+      {content}
+    </Link>
+  );
+}
+
 function StatusShell({
+  issuesHref,
   title,
   message,
   actionHref,
   actionLabel,
 }: {
+  issuesHref: string | null;
   title: string;
   message?: string;
   actionHref?: string;
@@ -1111,12 +1157,10 @@ function StatusShell({
   return (
     <section>
       <div className="flex min-h-8 items-center">
-        <h1 className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Investigation
-        </h1>
+        <IssuesBackLink href={issuesHref} />
       </div>
       <div className="mt-6 rounded-sm border border-border bg-background px-4 py-4">
-        <h2 className="text-lg font-semibold">{title}</h2>
+        <h1 className="text-lg font-semibold">{title}</h1>
         {message ? <p className="mt-2 text-sm text-muted">{message}</p> : null}
         {actionHref && actionLabel ? (
           <a
@@ -1128,101 +1172,6 @@ function StatusShell({
         ) : null}
       </div>
     </section>
-  );
-}
-
-function InvestigationSkeleton() {
-  return (
-    <section
-      aria-label="Loading investigation"
-      role="status"
-      className="min-w-0 animate-pulse pb-5"
-    >
-      <div className="flex min-h-8 items-center justify-between gap-4">
-        <h1 className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Investigation
-        </h1>
-        <div className="h-5 w-20 rounded-sm bg-surface" />
-      </div>
-
-      <div className="mt-6">
-        <div className="h-7 w-64 max-w-full rounded-sm bg-surface" />
-        <div className="mt-2 h-4 w-80 max-w-full rounded-sm bg-surface" />
-
-        <div className="mt-5 grid min-w-0 items-stretch gap-4 xl:grid-cols-[minmax(0,1.2fr)_minmax(0,0.8fr)]">
-          <div className="flex h-full min-w-0 flex-col gap-4">
-            <SkeletonPanel className="min-h-[420px] flex-1">
-              <div className="flex">
-                <div className="h-9 w-20 rounded-l-sm bg-surface" />
-                <div className="h-9 w-20 rounded-r-sm bg-surface" />
-              </div>
-              <div className="mt-4 min-h-[260px] flex-1 rounded-sm bg-surface" />
-            </SkeletonPanel>
-
-            <SkeletonPanel className="h-[480px] max-h-[70vh] min-h-[320px]">
-              <div className="flex gap-2">
-                <div className="h-8 w-32 rounded-sm bg-surface" />
-                <div className="h-8 w-40 rounded-sm bg-surface" />
-              </div>
-              <div className="mt-4 flex-1 rounded-sm bg-surface" />
-            </SkeletonPanel>
-          </div>
-
-          <div className="flex h-full min-w-0 flex-col gap-4">
-            <SkeletonPanel className="h-[480px] max-h-[70vh] min-h-[320px]">
-              <div className="flex items-center justify-between">
-                <div className="h-8 w-8 rounded-sm bg-surface" />
-                <div className="h-4 w-32 rounded-sm bg-surface" />
-                <div className="h-8 w-8 rounded-sm bg-surface" />
-              </div>
-              <div className="mt-3 flex-1 rounded-sm bg-surface" />
-            </SkeletonPanel>
-
-            <SkeletonPanel className="min-h-48">
-              <div className="space-y-3">
-                {[0, 1, 2, 3, 4, 5].map((index) => (
-                  <div key={index} className="flex items-center gap-3">
-                    <div className="h-5 w-5 rounded-full bg-surface" />
-                    <div className="h-4 w-2/3 rounded-sm bg-surface" />
-                  </div>
-                ))}
-              </div>
-            </SkeletonPanel>
-
-            <SkeletonPanel className="min-h-36">
-              <div className="h-3.5 w-full rounded-sm bg-surface" />
-              <div className="mt-2 h-3.5 w-5/6 rounded-sm bg-surface" />
-              <div className="mt-2 h-3.5 w-2/3 rounded-sm bg-surface" />
-            </SkeletonPanel>
-
-            <SkeletonPanel>
-              <div className="h-3 w-40 rounded-sm bg-surface" />
-              <div className="mt-2 h-5 w-3/4 rounded-sm bg-surface" />
-              <div className="mt-2 h-4 w-48 rounded-sm bg-surface" />
-            </SkeletonPanel>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function SkeletonPanel({
-  children,
-  className = "",
-}: {
-  children?: ReactNode;
-  className?: string;
-}) {
-  return (
-    <div
-      className={`flex min-w-0 flex-col overflow-hidden rounded-sm border border-border bg-background ${className}`}
-    >
-      <div className="border-b border-border bg-surface px-4 py-3">
-        <div className="h-4 w-28 rounded-sm bg-background" />
-      </div>
-      <div className="flex min-h-0 flex-1 flex-col px-4 py-4">{children}</div>
-    </div>
   );
 }
 
@@ -1239,9 +1188,9 @@ function Panel({
 }) {
   return (
     <section
-      className={`min-w-0 overflow-hidden rounded-sm border border-border bg-background ${className}`}
+      className={`${styles.panel} min-w-0 overflow-hidden border border-border ${className}`}
     >
-      <div className="border-b border-border bg-surface px-4 py-3">
+      <div className={`${styles.panelHeader} border-b border-border`}>
         <h3 className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted">
           {icon ? <span className="shrink-0 text-muted">{icon}</span> : null}
           {title}

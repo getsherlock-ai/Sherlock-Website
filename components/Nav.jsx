@@ -12,7 +12,7 @@ const LINKS = [
   { href: "/security", label: "Security" },
   { href: "/pricing", label: "Pricing" },
   { href: "/docs", label: "Docs" },
-  { href: "/contact", label: "Book a demo" },
+  { href: "/contact", label: "Contact" },
 ];
 
 export default function Nav() {
@@ -25,6 +25,8 @@ export default function Nav() {
   // Home has its own minimal header; app routes use the sidebar shell.
   if (
     pathname === "/" ||
+    pathname.startsWith("/onboarding") ||
+    pathname.startsWith("/auth") ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/investigations")
   ) {
@@ -36,7 +38,7 @@ export default function Nav() {
       <div className="wrap nav-inner">
         <Link href="/" className="brand" onClick={() => setOpen(false)}>
           <Logo />
-          Sherlock
+          Sherlock<span className="brand-period">.</span>
         </Link>
         <div className="nav-cta">
           <nav className="nav-links">
@@ -46,10 +48,7 @@ export default function Nav() {
             </Link>
           ))}
         </nav>
-          <span className="border-l h-8 inline-block"></span>
-
-          <GitHubSignInButton label="Log In" className="btn btn-ghost" />
-          <GitHubSignInButton label="Get Started" className="btn btn-primary" />
+          <GitHubSignInButton label="Continue with GitHub" className="btn btn-primary" showIcon />
         </div>
         <button
           className="nav-toggle"

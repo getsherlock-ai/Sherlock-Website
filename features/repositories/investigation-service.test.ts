@@ -11,6 +11,7 @@ const INVESTIGATION_ID = "inv_01K123456789AB";
 function backendInvestigation(status: "active" | "completed" | "failed") {
   return {
     id: INVESTIGATION_ID,
+    repositoryId: "555",
     issueTitle: "Broken dashboard",
     status,
     error: null,
@@ -87,6 +88,7 @@ describe("investigation transport", () => {
     expect(result.etag).toBe('W/"investigation-3"');
     expect(result.investigation).toMatchObject({
       investigationId: INVESTIGATION_ID,
+      repositoryId: "555",
       status: "completed",
       version: 3,
       fix: {

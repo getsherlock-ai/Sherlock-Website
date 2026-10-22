@@ -17,11 +17,11 @@ const mono = JetBrains_Mono({
 
 export const metadata = {
   title: {
-    default: "Sherlock — Once you’re live, stay live",
+    default: "Sherlock — Stop fixing the fix",
     template: "%s — Sherlock",
   },
   description:
-    "Sherlock finds and fixes bugs after launch so your website keeps running and your users keep moving.",
+    "Get a verified fix you can review, without the endless back-and-forth.",
 };
 
 export default function RootLayout({ children }) {

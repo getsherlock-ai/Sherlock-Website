@@ -6,6 +6,8 @@ const nextConfig = {
   distDir: process.env.NODE_ENV === "development" ? ".next-dev" : ".next",
   images: { unoptimized: true },
   trailingSlash: true,
+  // Keep the development indicator clear of the sidebar account controls.
+  devIndicators: { position: "bottom-right" },
 };
 
 export default nextConfig;
