@@ -11,6 +11,7 @@ const INVESTIGATION_ID = "inv_01K123456789AB";
 function backendInvestigation(status: "active" | "completed" | "failed") {
   return {
     id: INVESTIGATION_ID,
+    repositoryId: "555",
     issueTitle: "Broken dashboard",
     status,
     error: null,
@@ -57,6 +58,14 @@ afterEach(() => {
 });
 
 describe("investigation transport", () => {
+  test("preserves the publication-pending flag separately from execution completion", async () => {
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue(Response.json({
+      ...backendInvestigation("completed"), projectionPending: true,
+    })));
+    const result = await getInvestigation(INVESTIGATION_ID);
+    expect(result.status).toBe("modified");
+    if (result.status === "modified") expect(result.investigation.projectionPending).toBe(true);
+  });
   test("maps backend data and hydrates an authorized exact diff independently", async () => {
     const fetchMock = vi.fn(async (input: RequestInfo | URL) => {
       const url = String(input);
@@ -79,6 +88,7 @@ describe("investigation transport", () => {
     expect(result.etag).toBe('W/"investigation-3"');
     expect(result.investigation).toMatchObject({
       investigationId: INVESTIGATION_ID,
+      repositoryId: "555",
       status: "completed",
       version: 3,
       fix: {

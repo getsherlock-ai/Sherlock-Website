@@ -21,7 +21,7 @@ export default function Docs() {
         </div>
       </section>
 
-      <div className="wrap grid grid-cols-[220px_1fr] gap-14 px-0 pt-10 pb-[104px] max-[860px]:grid-cols-1">
+      <div className="wrap grid grid-cols-[220px_1fr] gap-14 pt-10 pb-[104px] max-[860px]:grid-cols-1">
         <nav className="docs-nav">
           <a href="#quickstart">Quickstart</a>
           <a href="#trigger">Triggering</a>
@@ -85,23 +85,23 @@ export default function Docs() {
           <h2 id="artifacts">Artifacts</h2>
           <p>Every run produces an inspectable evidence set:</p>
           <div className="ledger mt-5 mb-6">
-            <div className="ledger-row grid-cols-[200px_1fr]">
+            <div className="ledger-row grid-cols-[200px_1fr] max-[640px]:grid-cols-1 max-[640px]:gap-1">
               <span className="l-key">investigation.log</span>
               <span className="l-val">timestamped record of every stage, decision, and command</span>
             </div>
-            <div className="ledger-row grid-cols-[200px_1fr]">
+            <div className="ledger-row grid-cols-[200px_1fr] max-[640px]:grid-cols-1 max-[640px]:gap-1">
               <span className="l-key">reproduction script</span>
               <span className="l-val">the deterministic browser script that triggers the bug</span>
             </div>
-            <div className="ledger-row grid-cols-[200px_1fr]">
+            <div className="ledger-row grid-cols-[200px_1fr] max-[640px]:grid-cols-1 max-[640px]:gap-1">
               <span className="l-key">trace.zip</span>
               <span className="l-val">browser traces from reproduction and verification runs</span>
             </div>
-            <div className="ledger-row grid-cols-[200px_1fr]">
+            <div className="ledger-row grid-cols-[200px_1fr] max-[640px]:grid-cols-1 max-[640px]:gap-1">
               <span className="l-key">graph-context.json</span>
               <span className="l-val">the Graphify slice the investigation worked from</span>
             </div>
-            <div className="ledger-row grid-cols-[200px_1fr]">
+            <div className="ledger-row grid-cols-[200px_1fr] max-[640px]:grid-cols-1 max-[640px]:gap-1">
               <span className="l-key">pull request</span>
               <span className="l-val">the patch, linked to the issue, with the verification result</span>
             </div>

@@ -1,5 +1,7 @@
 import { redirect } from "next/navigation";
-import Logo from "@/components/Logo";
+import { GitBranch } from "lucide-react";
+import ConnectionShell from "@/components/layout/ConnectionShell";
+import styles from "@/components/layout/workspace.module.css";
 import { requireUser } from "@/lib/auth/require-user";
 import { getMe, getInstallations, activeInstallations } from "@/lib/backend/client";
 import { BackendError, safeMessageFor } from "@/lib/backend/errors";
@@ -10,7 +12,6 @@ export const dynamic = "force-dynamic";
 
 export default async function OnboardingPage() {
   const { accessToken } = await requireUser();
-
   let me = null;
   let backendError = null;
   let active = [];
@@ -28,54 +29,29 @@ export default async function OnboardingPage() {
 
   if (backendError?.status === 401) redirect("/");
   if (active.length > 0) redirect("/dashboard");
-
   const login = me?.user?.login ?? null;
 
   return (
-    <section className="auth-section">
-      <div className="wrap">
-        <div className="panel auth-panel">
-          <div className="panel-bar">
-            <span className="panel-dots">
-              <i />
-              <i />
-              <i />
-            </span>
-            <span>sherlock — onboarding</span>
-            {login && <span className="chip">@{login}</span>}
-          </div>
-          <div className="auth-panel-body">
-            <span className="auth-brand">
-              <Logo />
-              Sherlock
-            </span>
-            {backendError ? (
-              <>
-                <h1>Connect Sherlock to GitHub</h1>
-                <p>{safeMessageFor(backendError)}</p>
-                <div className="auth-panel-actions">
-                  <a href="/onboarding" className="btn btn-primary">
-                    Try again
-                  </a>
-                </div>
-              </>
-            ) : (
-              <>
-                <span className="chip chip-brand">no active connection</span>
-                <h1>Connect Sherlock to GitHub</h1>
-                <p>
-                  Install the Sherlock GitHub App to start investigating.
-                  GitHub will let you pick the account and the repositories
-                  Sherlock can access.
-                </p>
-                <div className="auth-panel-actions">
-                  <InstallButton />
-                </div>
-              </>
-            )}
-          </div>
-        </div>
-      </div>
-    </section>
+    <ConnectionShell>
+      <section className={styles.connectionCard} aria-labelledby="connect-title">
+        <div className={styles.connectionIcon}><GitBranch aria-hidden="true" /></div>
+        {login && <span className={styles.connectionAccount}>Signed in as @{login}</span>}
+        <h1 id="connect-title">Connect your repositories.</h1>
+        {backendError ? (
+          <>
+            <p role="alert">{safeMessageFor(backendError)}</p>
+            <div className={styles.connectionActions}>
+              <a href="/onboarding" className="btn btn-primary">Try again</a>
+            </div>
+          </>
+        ) : (
+          <>
+            <p>Connect Sherlock to GitHub to bring your issues into one workspace. You choose which repositories Sherlock can access.</p>
+            <div className={styles.connectionActions}><InstallButton /></div>
+            <p className={styles.connectionNote}>You can change repository access in GitHub at any time.</p>
+          </>
+        )}
+      </section>
+    </ConnectionShell>
   );
 }

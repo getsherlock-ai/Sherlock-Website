@@ -3,6 +3,7 @@
 import { Check, Lock, Search, Settings, Unlock, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { filterRepositories } from "../github-state";
+import styles from "./repository.module.css";
 import type { ConnectedRepository, GitHubInstallation } from "../types";
 
 export default function RepositoryPickerModal({
@@ -47,7 +48,7 @@ export default function RepositoryPickerModal({
         role="dialog"
         aria-modal="true"
         aria-labelledby="repository-picker-title"
-        className="flex max-h-[min(720px,calc(100vh-2rem))] w-full max-w-2xl flex-col overflow-hidden rounded-lg border border-border bg-background shadow-2xl"
+        className={`${styles.picker} flex max-h-[min(720px,calc(100vh-2rem))] w-full max-w-2xl flex-col overflow-hidden border bg-background`}
       >
         <div className="flex items-start justify-between gap-4 border-b border-border px-5 py-4">
           <div>
@@ -166,6 +167,8 @@ export default function RepositoryPickerModal({
           {installations[0] ? (
             <a
               href={installations[0].manageUrl}
+              target="_blank"
+              rel="noopener noreferrer"
               className="inline-flex items-center gap-1.5 text-sm font-medium hover:underline"
             >
               <Settings className="size-3.5" aria-hidden="true" />

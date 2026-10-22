@@ -6,11 +6,14 @@ import {
   ChevronDown,
   ChevronUp,
   FolderGit2,
+  PanelLeftClose,
   PanelLeftOpen,
   X,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import UserMenu from "@/features/auth/UserMenu";
+import styles from "./workspace.module.css";
+import type { ConnectedRepositoriesResponse } from "@/features/repositories/types";
 import RepositoryPickerModal from "@/features/repositories/components/RepositoryPickerModal";
 import {
   getConnectedRepositories,
@@ -23,14 +26,13 @@ import {
   getGitHubCallbackNotice,
   getSidebarRepositories,
   INITIAL_REPOSITORY_LOAD_STATE,
+  LAST_SELECTED_REPOSITORY_ID_KEY,
   removeGitHubCallbackParams,
   repositoryIdFromDashboardPath,
   SIDEBAR_REPOSITORY_LIMIT,
   type RepositoryLoadState,
 } from "@/features/repositories/github-state";
 
-const LAST_SELECTED_REPOSITORY_ID_KEY =
-  "sherlock:last-selected-repository-id";
 type Notice = NonNullable<ReturnType<typeof getGitHubCallbackNotice>>;
 
 export default function Sidebar() {
@@ -49,25 +51,51 @@ export default function Sidebar() {
   const [isInstalling, setIsInstalling] = useState(false);
   const [notice, setNotice] = useState<Notice | null>(null);
   const showRepositories = repositoriesOpen;
+  const repositoryRequest =
+    useRef<Promise<ConnectedRepositoriesResponse | null> | null>(null);
 
-  const loadRepositories = useCallback(async () => {
-    setRepositoryState({ status: "loading" });
-
-    try {
-      const response = await getConnectedRepositories();
-      setRepositoryState({ status: "ready", ...response });
-      return response;
-    } catch (error) {
-      setRepositoryState({
-        status: "error",
-        message:
-          error instanceof Error
-            ? error.message
-            : "Unable to load GitHub repositories.",
-      });
-      return null;
-    }
+  useEffect(() => {
+    setIsOpen(window.innerWidth >= 1024);
   }, []);
+
+  const loadRepositories = useCallback((background = false) => {
+    if (repositoryRequest.current) return repositoryRequest.current;
+    const request = (async () => {
+      if (!background) setRepositoryState({ status: "loading" });
+
+      try {
+        const response = await getConnectedRepositories({ refresh: true });
+        setRepositoryState({ status: "ready", ...response });
+        return response;
+      } catch (error) {
+        setRepositoryState({
+          status: "error",
+          message:
+            error instanceof Error
+              ? error.message
+              : "Unable to load GitHub repositories.",
+        });
+        return null;
+      }
+    })();
+    repositoryRequest.current = request;
+    void request.finally(() => {
+      if (repositoryRequest.current === request) repositoryRequest.current = null;
+    });
+    return request;
+  }, []);
+
+  useEffect(() => {
+    const refreshOnReturn = () => {
+      if (document.visibilityState !== "hidden") void loadRepositories(true);
+    };
+    window.addEventListener("focus", refreshOnReturn);
+    document.addEventListener("visibilitychange", refreshOnReturn);
+    return () => {
+      window.removeEventListener("focus", refreshOnReturn);
+      document.removeEventListener("visibilitychange", refreshOnReturn);
+    };
+  }, [loadRepositories]);
 
   useEffect(() => {
     if (callbackHandled.current) return;
@@ -196,6 +224,7 @@ export default function Sidebar() {
     setSelectedRepositoryId(repositoryId);
     window.localStorage.setItem(LAST_SELECTED_REPOSITORY_ID_KEY, repositoryId);
     setIsRepositoryPickerOpen(false);
+    if (window.innerWidth <= 760) setIsOpen(false);
     router.push(`/dashboard/${repositoryId}`);
   }
 
@@ -259,60 +288,33 @@ export default function Sidebar() {
         </div>
       ) : null}
 
-      <aside
-        className={`flex min-h-screen shrink-0 flex-col overflow-hidden px-2 py-2 text-foreground transition-[width,background-color] duration-300 ease-out ${
-          isOpen
-            ? "w-64 bg-surface-subtle"
-            : "w-12 bg-background lg:bg-surface-subtle"
-        }`}
-      >
-        <div
-          className={`mb-4 flex h-8 items-center ${isOpen ? "gap-2" : "gap-0"}`}
-        >
+      {isOpen ? <button type="button" className={styles.sidebarBackdrop} onClick={() => setIsOpen(false)} aria-label="Close sidebar overlay" /> : null}
+      <aside className={`${styles.sidebar} ${isOpen ? styles.sidebarOpen : styles.sidebarClosed}`}>
+        <div className={styles.sidebarHeader}>
+          {isOpen ? (
+            <Link href="/" className={styles.wordmark} aria-label="Sherlock home">
+              <span>Sherlock<span className={styles.period}>.</span></span>
+            </Link>
+          ) : null}
           <button
             type="button"
             aria-label={isOpen ? "Close sidebar" : "Open sidebar"}
             aria-expanded={isOpen}
             onClick={() => setIsOpen(!isOpen)}
-            className={`relative flex h-8 w-8 shrink-0 items-center justify-center rounded-sm text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground ${
-              isOpen ? "order-2" : "order-1"
-            }`}
+            className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-muted transition-colors hover:bg-surface hover:text-foreground"
           >
-            <PanelLeftOpen
-              className={`absolute h-4.5 w-4.5 transition-all duration-300 ease-out ${
-                isOpen
-                  ? "scale-75 rotate-90 opacity-0"
-                  : "scale-100 rotate-0 opacity-100"
-              }`}
-            />
-            <X
-              className={`absolute h-4.5 w-4.5 transition-all duration-300 ease-out ${
-                isOpen
-                  ? "scale-100 rotate-0 opacity-100"
-                  : "scale-75 -rotate-90 opacity-0"
-              }`}
-            />
+            {isOpen ? <PanelLeftClose size={17} aria-hidden="true" /> : <PanelLeftOpen size={17} aria-hidden="true" />}
           </button>
-
-          <div
-            className={`order-1 min-w-0 overflow-hidden transition-all duration-300 ease-out ${
-              isOpen
-                ? "flex-1 translate-x-0 opacity-100"
-                : "max-w-0 -translate-x-2 opacity-0"
-            }`}
-          >
-            <UserMenu />
-          </div>
         </div>
-
         <nav className="flex flex-1 flex-col gap-1.5">
           <button
             type="button"
-            aria-expanded={showRepositories}
+            aria-expanded={isOpen && showRepositories}
+            title={!isOpen ? "Repositories" : undefined}
             onClick={toggleRepositories}
-            className="flex h-9 w-full items-center gap-3 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground"
+            className="flex h-9 w-full items-center gap-3 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 hover:bg-surface hover:text-foreground"
           >
-            <FolderGit2 className="h-4 w-4 shrink-0 transition-transform duration-300 ease-out" />
+            <FolderGit2 className="h-4 w-4 shrink-0 text-[color:var(--brand)] transition-transform duration-300 ease-out" />
             <span
               className={`min-w-0 flex-1 whitespace-nowrap transition-all duration-300 ease-out ${
                 isOpen
@@ -336,6 +338,7 @@ export default function Sidebar() {
           </button>
 
           <div
+            inert={!(isOpen && showRepositories)}
             className={`grid transition-[grid-template-rows,opacity] duration-300 ease-out ${
               isOpen && showRepositories
                 ? "grid-rows-[1fr] opacity-100"
@@ -359,8 +362,11 @@ export default function Sidebar() {
                       key={repository.id}
                       href={href}
                       title={repository.fullName}
+                      onClick={() => {
+                        if (window.innerWidth <= 760) setIsOpen(false);
+                      }}
                       aria-current={isActive ? "page" : undefined}
-                      className={`relative flex h-8 w-full items-center rounded-sm px-2 text-left text-xs font-medium transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground ${
+                      className={`${styles.repositoryLink} relative flex min-h-9 w-full items-center rounded-md px-2 text-left text-sm font-medium transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground ${
                         isActive ? "bg-surface text-foreground" : "text-muted"
                       }`}
                     >
@@ -370,7 +376,7 @@ export default function Sidebar() {
                 })}
                 {repositoryState.status === "ready" &&
                 repositories.length === 0 ? (
-                  <p className="px-2 py-2 text-xs text-muted">
+                  <p className="px-2 py-2 text-sm text-muted">
                     Sherlock currently has no repository access.
                   </p>
                 ) : null}
@@ -378,14 +384,16 @@ export default function Sidebar() {
                   <button
                     type="button"
                     onClick={() => setIsRepositoryPickerOpen(true)}
-                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
+                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
                   >
                     Browse repositories
                   </button>
                 ) : manageInstallation ? (
                   <a
                     href={manageInstallation.manageUrl}
-                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground"
                   >
                     Manage GitHub access
                   </a>
@@ -396,7 +404,7 @@ export default function Sidebar() {
                     disabled={
                       isInstalling || repositoryState.status === "loading"
                     }
-                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-xs font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground disabled:cursor-wait disabled:opacity-60"
+                    className="relative mt-1 flex h-8 w-full items-center gap-2 rounded-sm px-2 text-left text-sm font-medium text-muted transition-colors duration-200 before:absolute before:-left-4 before:top-1/2 before:h-px before:w-3 before:bg-border hover:bg-surface hover:text-foreground disabled:cursor-wait disabled:opacity-60"
                   >
                     {isInstalling
                       ? "Opening GitHub..."
@@ -409,6 +417,9 @@ export default function Sidebar() {
             </div>
           </div>
         </nav>
+        <div className={styles.sidebarAccount}>
+          <UserMenu compact={!isOpen} onExpand={() => setIsOpen(true)} />
+        </div>
       </aside>
 
       {isRepositoryPickerOpen && repositoryState.status === "ready" ? (

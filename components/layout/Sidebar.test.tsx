@@ -83,6 +83,30 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("Sidebar authorized repository browsing", () => {
+  test("coalesces focus and visibility refreshes and removes revoked repositories", async () => {
+    getConnectedRepositoriesMock.mockResolvedValueOnce(response(repositories.slice(0, 3)));
+    render(<Sidebar />);
+    await screen.findByTitle(repositories[2].fullName);
+    let finish: (value: ConnectedRepositoriesResponse) => void = () => {};
+    getConnectedRepositoriesMock.mockImplementation(() => new Promise((resolve) => { finish = resolve; }));
+    fireEvent.focus(window);
+    fireEvent(document, new Event("visibilitychange"));
+    expect(getConnectedRepositoriesMock).toHaveBeenCalledTimes(2);
+    finish(response([repositories[0]]));
+    await waitFor(() => expect(screen.queryByTitle(repositories[2].fullName)).not.toBeInTheDocument());
+  });
+
+  test("refreshes saved access on return from GitHub without a callback redirect", async () => {
+    getConnectedRepositoriesMock.mockResolvedValueOnce(response([repositories[0]]))
+      .mockResolvedValue(response(repositories.slice(0, 3)));
+    render(<Sidebar />);
+    await screen.findByTitle(repositories[0].fullName);
+    expect(screen.getByRole("link", { name: "Manage GitHub access" })).toHaveAttribute("target", "_blank");
+    fireEvent.focus(window);
+    expect(await screen.findByTitle(repositories[2].fullName)).toBeInTheDocument();
+    expect(getConnectedRepositoriesMock).toHaveBeenLastCalledWith({ refresh: true });
+  });
+
   test("reloads authorized repositories after refresh and session restoration", async () => {
     let resolveRepositories:
       | ((value: ConnectedRepositoriesResponse) => void)

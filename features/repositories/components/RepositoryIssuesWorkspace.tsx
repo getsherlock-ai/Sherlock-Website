@@ -4,6 +4,8 @@ import { ExternalLink, FolderGit, Lock, Unlock } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { ApiClientError } from "../api";
+import styles from "./repository.module.css";
+import RepositoryIssuesSkeleton from "./RepositoryIssuesSkeleton";
 import {
   getConnectedRepositories,
   getIssueInvestigation,
@@ -118,12 +120,12 @@ export default function RepositoryIssuesWorkspace({
         issueNumber,
       );
       router.push(
-        `/investigations/${encodeURIComponent(investigation.investigationId)}`,
+        `/investigations/${encodeURIComponent(investigation.investigationId)}?repositoryId=${encodeURIComponent(repositoryId)}`,
       );
     } catch (error) {
       setIssueActionError(
         error instanceof ApiClientError && error.status === 404
-          ? "No investigation exists for this issue yet. Comment “investigate” on the GitHub issue first."
+          ? "No investigation exists for this issue yet. Comment “/sherlock investigate” on the GitHub issue first."
           : error instanceof Error
             ? error.message
             : "Unable to open this issue investigation.",
@@ -133,18 +135,14 @@ export default function RepositoryIssuesWorkspace({
   }
 
   if (state.status === "loading") {
-    return <RepositoryIssuesLoading />;
+    return <RepositoryIssuesSkeleton />;
   }
 
   if (state.status === "error") {
     return (
-      <section>
-        <div className="flex min-h-8 items-center">
-          <h1 className="text-xs font-semibold uppercase tracking-wide text-muted">
-            Repository issues
-          </h1>
-        </div>
-        <div className="mt-6 max-w-3xl rounded-sm border border-red-900/70 bg-red-950/30 p-5">
+      <section className={styles.workspace}>
+        <div className="max-w-3xl rounded-lg border border-red-900/70 bg-red-950/30 p-5">
+          <h1 className="mb-2 text-lg font-medium">Couldn’t load this repository</h1>
           <p role="alert" className="text-sm text-red-200">
             {state.message}
           </p>
@@ -164,15 +162,9 @@ export default function RepositoryIssuesWorkspace({
   }
 
   return (
-    <section className="pb-8">
-      <div className="flex min-h-8 items-center">
-        <h1 className="text-xs font-semibold uppercase tracking-wide text-muted">
-          Repository issues
-        </h1>
-      </div>
-
-      <div className="mt-6 flex flex-wrap items-start justify-between gap-4">
-        <div className="flex min-w-0 items-center gap-3">
+    <section className={styles.workspace}>
+      <div className={`${styles.repositoryHeader} flex flex-wrap items-start justify-between gap-4`}>
+        <div className={`${styles.repositoryTitleGroup} flex min-w-0 items-center gap-3`}>
           {state.repository.ownerAvatarUrl ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -187,9 +179,9 @@ export default function RepositoryIssuesWorkspace({
             />
           )}
           <div className="min-w-0">
-            <h2 className="truncate text-2xl font-semibold">
+            <h1 className={`${styles.repositoryTitle} truncate`}>
               {state.repository.fullName}
-            </h2>
+            </h1>
             <p className="mt-1 flex items-center gap-1 text-xs text-muted">
               {state.repository.private ? (
                 <Lock className="size-3" aria-hidden="true" />
@@ -204,7 +196,7 @@ export default function RepositoryIssuesWorkspace({
           href={state.repository.htmlUrl}
           target="_blank"
           rel="noreferrer"
-          className="inline-flex h-9 items-center gap-2 rounded-sm border border-border px-3 text-sm font-medium hover:bg-surface"
+          className={`${styles.repositoryLink} inline-flex h-9 items-center gap-2 border border-border px-3 text-xs font-medium hover:bg-surface`}
         >
           <FolderGit className="size-4" aria-hidden="true" />
           View repository
@@ -212,11 +204,12 @@ export default function RepositoryIssuesWorkspace({
         </a>
       </div>
 
-      <div className="mt-8 flex gap-1 border-b border-border">
+      <div className={`${styles.tabs} flex border-b border-border`}>
         {ISSUE_STATES.map((option) => (
           <button
             key={option.value}
             type="button"
+            aria-pressed={issueState === option.value}
             onClick={() => changeIssueState(option.value)}
             className={`border-b-2 px-3 py-2 text-sm font-medium transition-colors ${
               issueState === option.value
@@ -239,7 +232,8 @@ export default function RepositoryIssuesWorkspace({
       ) : null}
 
       {state.issues.length === 0 ? (
-        <div className="mt-5 rounded-sm border border-dashed border-border py-14 text-center">
+        <div className={`${styles.empty} mt-5 border border-dashed border-border text-center`}>
+          <FolderGit size={28} aria-hidden="true" />
           <p className="text-sm font-medium">
             {issueState === "all"
               ? "No issues found"
@@ -250,18 +244,18 @@ export default function RepositoryIssuesWorkspace({
           </p>
         </div>
       ) : (
-        <div className="mt-5 overflow-hidden rounded-sm border border-border">
+        <div className={`${styles.issueList} mt-5 overflow-hidden border border-border`}>
           {state.issues.map((issue) => (
             <button
               key={issue.id}
               type="button"
               disabled={resolvingIssueNumber !== null}
               onClick={() => void openIssueInvestigation(issue.number)}
-              className="flex w-full gap-3 border-b border-border px-4 py-4 text-left transition-colors last:border-b-0 hover:bg-surface disabled:cursor-wait disabled:opacity-60"
+              className={`${styles.issueRow} flex w-full gap-3 border-b border-border text-left transition-colors last:border-b-0 hover:bg-surface disabled:cursor-wait disabled:opacity-60`}
             >
               <span
                 className={`mt-1 size-2.5 shrink-0 rounded-full ${
-                  issue.state === "open" ? "bg-emerald-500" : "bg-violet-500"
+                  issue.state === "open" ? "bg-emerald-500" : "bg-[color:var(--brand)]"
                 }`}
                 aria-hidden="true"
               />
@@ -296,7 +290,7 @@ export default function RepositoryIssuesWorkspace({
         </div>
       )}
 
-      <div className="mt-5 flex items-center justify-between">
+      <div className={`${styles.pagination} mt-5 flex items-center justify-between`}>
         <button
           type="button"
           disabled={page === 1}
@@ -314,21 +308,6 @@ export default function RepositoryIssuesWorkspace({
         >
           Next
         </button>
-      </div>
-    </section>
-  );
-}
-
-function RepositoryIssuesLoading() {
-  return (
-    <section aria-label="Loading repository issues" role="status">
-      <div className="h-8 w-32 animate-pulse rounded-sm bg-surface" />
-      <div className="mt-6 h-12 w-72 animate-pulse rounded-sm bg-surface" />
-      <div className="mt-8 h-10 animate-pulse rounded-sm bg-surface" />
-      <div className="mt-5 grid gap-px overflow-hidden rounded-sm border border-border bg-border">
-        {[0, 1, 2, 3].map((item) => (
-          <div key={item} className="h-20 animate-pulse bg-surface" />
-        ))}
       </div>
     </section>
   );

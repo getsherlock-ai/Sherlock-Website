@@ -13,6 +13,8 @@ export const INITIAL_REPOSITORY_LOAD_STATE: RepositoryLoadState = {
 };
 
 export const SIDEBAR_REPOSITORY_LIMIT = 6;
+export const LAST_SELECTED_REPOSITORY_ID_KEY =
+  "sherlock:last-selected-repository-id";
 
 export function getRepositoryContentKind(state: RepositoryLoadState) {
   if (state.status !== "ready") return state.status;

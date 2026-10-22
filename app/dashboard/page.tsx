@@ -1,18 +1,13 @@
 import { requireDashboardUser } from "@/lib/auth/require-dashboard-user";
+import styles from "@/components/layout/workspace.module.css";
 
 export default async function RepositoriesPage() {
   await requireDashboardUser();
 
   return (
-    <section className="flex min-h-[calc(100vh-1.75rem)] items-center justify-center">
-      <div className="max-w-sm text-center">
-        <h1 className="text-sm font-semibold text-foreground">
-          Select a repository
-        </h1>
-        <p className="mt-2 text-sm leading-6 text-muted">
-          Open the sidebar and choose a repository to view its issues.
-        </p>
-      </div>
+    <section className={styles.welcome}>
+      <h1>Start with a repository.</h1>
+      <p>Choose a repository from the sidebar to see its issues and investigations.</p>
     </section>
   );
 }

@@ -43,27 +43,27 @@
 @layer components {
 
 /* ------------------------------------------------------------------
-   Sherlock — design tokens v2
-   Black / deep-purple canvas. Violet is the brand voice. Status colors
+   Shared color and typography tokens
+   Charcoal surfaces, cream text, and amber accents. Status colors
    are strictly semantic: yellow = investigating, green = verified only,
-   red = bugs & removed code. Motion language: glitch-in, settle, hold.
+   red = bugs & removed code. Status colors stay distinct from the brand palette.
 ------------------------------------------------------------------- */
 
 :root {
-  --bg: #08060d;
-  --bg-raise: #0d0a16;
-  --bg-panel: #110d1d;
-  --bg-inset: #0a0813;
-  --line: #2a2144;
-  --line-soft: #1b1530;
+  --bg: #20202a;
+  --bg-raise: #252530;
+  --bg-panel: #2d2d39;
+  --bg-inset: #1b1b24;
+  --line: #494753;
+  --line-soft: #393743;
 
-  --ink: #edeaf6;
-  --ink-dim: #a79fc4;
-  --ink-faint: #665d87;
+  --ink: #f3f0e7;
+  --ink-dim: #b7b6bf;
+  --ink-faint: #95919f;
 
-  --brand: #a78bfa;
-  --brand-strong: #7c3aed;
-  --brand-soft: rgba(167, 139, 250, 0.12);
+  --brand: #e8b66a;
+  --brand-strong: #e8b66a;
+  --brand-soft: rgba(232, 182, 106, 0.12);
   --warn: #f5c84c;
   --warn-soft: rgba(245, 200, 76, 0.1);
   --verified: #3ecf8e;
@@ -87,17 +87,17 @@
      instead of re-declaring the gradients (keep each section ~1 texture) */
   --tex-scanlines: repeating-linear-gradient(
     180deg,
-    rgba(167, 139, 250, 0.045) 0 1px,
+    rgba(232, 182, 106, 0.045) 0 1px,
     transparent 1px 4px
   );
   --tex-hatch: repeating-linear-gradient(
     45deg,
-    rgba(167, 139, 250, 0.09) 0 1px,
+    rgba(232, 182, 106, 0.09) 0 1px,
     transparent 1px 9px
   );
   --tex-dots: radial-gradient(
-    rgba(167, 139, 250, 0.17) 1px,
-    transparent 1.4px
+    circle, #b9b3ce30 0.8px,
+    transparent 1px
   );
   --tex-noise: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
 }
@@ -128,23 +128,30 @@ a {
 
 ::selection {
   background: var(--brand-strong);
-  color: #fff;
+  color: var(--bg);
 }
 
-/* blueprint grid over the whole canvas + violet bloom up top */
+/* Shared dotted canvas; reading surfaces use solid backgrounds. */
 .site {
-  background-image:
-    radial-gradient(
-      ellipse 70% 40% at 50% -8%,
-      rgba(124, 58, 237, 0.16),
-      transparent
-    ),
-    linear-gradient(rgba(167, 139, 250, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.04) 1px, transparent 1px);
-  background-size: 100% 100%, 56px 56px, 56px 56px;
+  background-color: var(--bg);
+  background-image: var(--tex-dots);
+  background-size: 24px 24px;
+  background-position: 11px 11px;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+}
+
+.site > main { flex: 1; min-width: 0; }
+
+.site-footer { margin-top: auto; border-top: 1px solid var(--line-soft); color: var(--ink-dim); }
+.site-footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding-block: 28px; font-size: 11px; }
+.site-footer nav { display: flex; flex-wrap: wrap; gap: 24px; }
+.site-footer a:hover, .site-footer a span { color: var(--brand); }
+
+a:focus-visible, button:focus-visible, input:focus-visible {
+  outline: 2px solid var(--brand);
+  outline-offset: 4px;
 }
 
 /* Spotlight lives on the page background rather than inside the hero. The
@@ -154,17 +161,17 @@ a {
   background-image:
     radial-gradient(
       340px circle at var(--spotlight-x, 50vw) var(--spotlight-y, 40vh),
-      rgba(167, 139, 250, 0.1),
-      rgba(167, 139, 250, 0.035) 45%,
+      rgba(232, 182, 106, 0.1),
+      rgba(232, 182, 106, 0.035) 45%,
       transparent 70%
     ),
     radial-gradient(
       ellipse 70% 40% at 50% -8%,
-      rgba(124, 58, 237, 0.16),
+      rgba(232, 182, 106, 0.16),
       transparent
     ),
-    linear-gradient(rgba(167, 139, 250, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.04) 1px, transparent 1px);
+    linear-gradient(rgba(232, 182, 106, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.04) 1px, transparent 1px);
   background-size: 100% 100%, 100% 100%, 56px 56px, 56px 56px;
   background-attachment: fixed, scroll, scroll, scroll;
 }
@@ -182,7 +189,7 @@ a {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(8, 6, 13, 0.88);
+  background: rgba(32, 32, 42, 0.88);
   border-bottom: 1px solid var(--line-soft);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
@@ -192,31 +199,34 @@ a {
   display: flex;
   align-items: center;
   gap: 32px;
-  height: 56px;
+  height: 80px;
 }
 
 .brand {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-weight: 700;
-  font-size: 24px;
-  letter-spacing: -0.01em;
+  gap: 8px;
+  font-weight: 600;
+  font-size: 25px;
+  letter-spacing: -0.05em;
 }
 
+.brand-period { color: var(--brand); margin-left: -8px; }
+
 .brand-mark {
-  width: 50px;
-  height: 40px;
+  width: 36px;
+  height: 34px;
   flex: none;
   object-fit: contain;
   display: block;
+  filter: grayscale(1) brightness(1.2);
 }
 
 .nav-links {
   display: flex;
   gap: 26px;
-  font-family: var(--font-mono);
-  font-size: 15px;
+  font-family: var(--font-body);
+  font-size: 12px;
   color: var(--ink-dim);
 }
 
@@ -231,7 +241,7 @@ a {
 .nav-cta {
   margin-left: auto;
   display: flex;
-  gap: 12px;
+  gap: 28px;
   align-items: center;
 }
 
@@ -301,7 +311,7 @@ a {
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  border-radius: 8px;
+  border-radius: 8px 7px 9px 6px;
   font-size: 14px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -314,14 +324,16 @@ a {
 }
 
 .btn-primary {
-  background: var(--brand-strong);
-  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--bg);
+  box-shadow: 3px 3px 0 #aa7940;
 }
 
-.btn-primary:hover {
-  transform: translateY(-1px);
-  box-shadow: 0 6px 28px rgba(124, 58, 237, 0.45);
-  background: #8b4dff;
+.btn-primary:hover:not(:disabled) {
+  transform: translate(-1px, -1px);
+  box-shadow: 4px 4px 0 #c09050;
+  background: #fffaf0;
 }
 
 .btn-ghost {
@@ -440,7 +452,7 @@ h3 {
     transform: rotate(-3deg) translate(1px, 0) skewX(2deg);
   }
   96% {
-    text-shadow: -1.5px 0 rgba(62, 207, 142, 0.5), 1.5px 0 rgba(124, 58, 237, 0.6);
+    text-shadow: -1.5px 0 rgba(62, 207, 142, 0.5), 1.5px 0 rgba(232, 182, 106, 0.6);
     transform: rotate(-2.7deg) translate(-1px, 1px);
   }
   97.5% {
@@ -501,7 +513,7 @@ h3 {
   will-change: transform;
   opacity: 0;
   transition: opacity 0.6s ease;
-  filter: drop-shadow(0 10px 30px rgba(124, 58, 237, 0.35));
+  filter: drop-shadow(0 10px 30px rgba(232, 182, 106, 0.35));
 }
 
 .lens-ready {
@@ -518,7 +530,7 @@ h3 {
   right: -32px;
   bottom: 4px;
   transform: rotate(45deg);
-  background: linear-gradient(90deg, #7c3aed, #3b1d78);
+  background: linear-gradient(90deg, #e8b66a, #3b1d78);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35);
 }
 
@@ -528,12 +540,12 @@ h3 {
   border-radius: 50%;
   overflow: hidden;
   background: var(--bg);
-  border: 2px solid rgba(167, 139, 250, 0.75);
+  border: 2px solid rgba(232, 182, 106, 0.75);
   transition: border-color 0.25s ease;
   box-shadow:
-    inset 0 0 0 1px rgba(167, 139, 250, 0.15),
-    inset 0 -18px 32px rgba(124, 58, 237, 0.16),
-    0 0 0 6px rgba(167, 139, 250, 0.08);
+    inset 0 0 0 1px rgba(232, 182, 106, 0.15),
+    inset 0 -18px 32px rgba(232, 182, 106, 0.16),
+    0 0 0 6px rgba(232, 182, 106, 0.08);
 }
 
 /* glass shine over the magnified content */
@@ -544,7 +556,7 @@ h3 {
   border-radius: 50%;
   background:
     radial-gradient(60% 45% at 32% 24%, rgba(237, 234, 246, 0.13), transparent 60%),
-    radial-gradient(120% 120% at 70% 85%, rgba(124, 58, 237, 0.12), transparent 55%);
+    radial-gradient(120% 120% at 70% 85%, rgba(232, 182, 106, 0.12), transparent 55%);
 }
 
 .lens-content {
@@ -580,7 +592,7 @@ h3 {
   z-index: 3;
   will-change: transform;
   pointer-events: none;
-  filter: drop-shadow(0 6px 16px rgba(124, 58, 237, 0.35));
+  filter: drop-shadow(0 6px 16px rgba(232, 182, 106, 0.35));
   opacity: 0;
 }
 
@@ -703,8 +715,8 @@ h3 {
   z-index: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(167, 139, 250, 0.055) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.055) 1px, transparent 1px);
+    linear-gradient(rgba(232, 182, 106, 0.055) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.055) 1px, transparent 1px);
   background-size: 224px 224px;
   -webkit-mask-image: radial-gradient(
     ellipse 90% 85% at 50% 32%,
@@ -749,7 +761,7 @@ h3 {
   left: 50%;
   top: 38%;
   transform: translate(-50%, -50%);
-  border: 1px solid rgba(167, 139, 250, 0.13);
+  border: 1px solid rgba(232, 182, 106, 0.13);
   border-radius: 50%;
 }
 
@@ -758,14 +770,14 @@ h3 {
 .hero-ambient .r2 {
   width: 960px;
   height: 380px;
-  border-color: rgba(167, 139, 250, 0.085);
+  border-color: rgba(232, 182, 106, 0.085);
 }
 
 .hero-ambient .r3 {
   width: 1300px;
   height: 520px;
   border-style: dashed;
-  border-color: rgba(167, 139, 250, 0.055);
+  border-color: rgba(232, 182, 106, 0.055);
 }
 
 .hero-ambient-label {
@@ -788,8 +800,8 @@ h3 {
   pointer-events: none;
   background: radial-gradient(
     ellipse 58% 54% at 50% 44%,
-    rgba(124, 58, 237, 0.24),
-    rgba(124, 58, 237, 0.07) 48%,
+    rgba(232, 182, 106, 0.24),
+    rgba(232, 182, 106, 0.07) 48%,
     transparent 72%
   );
 }
@@ -799,7 +811,7 @@ h3 {
   position: absolute;
   inset: 8px 40px;
   z-index: 1;
-  border: 1px dashed rgba(167, 139, 250, 0.26);
+  border: 1px dashed rgba(232, 182, 106, 0.26);
   border-radius: 50%;
   pointer-events: none;
   -webkit-mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.45), #000 46%);
@@ -823,17 +835,17 @@ h3 {
   background:
     repeating-linear-gradient(
         90deg,
-        rgba(167, 139, 250, 0.4) 0 1px,
+        rgba(232, 182, 106, 0.4) 0 1px,
         transparent 1px 72px
       )
       center bottom / 100% 11px no-repeat,
     repeating-linear-gradient(
         90deg,
-        rgba(167, 139, 250, 0.2) 0 1px,
+        rgba(232, 182, 106, 0.2) 0 1px,
         transparent 1px 12px
       )
       center bottom / 100% 5px no-repeat,
-    linear-gradient(rgba(167, 139, 250, 0.35), rgba(167, 139, 250, 0.35))
+    linear-gradient(rgba(232, 182, 106, 0.35), rgba(232, 182, 106, 0.35))
       center bottom / 100% 1px no-repeat;
   -webkit-mask-image: linear-gradient(
     90deg,
@@ -858,8 +870,7 @@ h3 {
   border: 1px solid var(--line);
   border-radius: var(--radius-lg);
   overflow: hidden;
-  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.08),
-    0 24px 60px rgba(0, 0, 0, 0.55), 0 0 80px rgba(124, 58, 237, 0.08);
+  box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.18);
 }
 
 .panel-bar {
@@ -898,7 +909,7 @@ h3 {
 }
 
 .chip-brand {
-  border-color: rgba(167, 139, 250, 0.45);
+  border-color: rgba(232, 182, 106, 0.45);
   color: var(--brand);
   background: var(--brand-soft);
 }
@@ -1011,7 +1022,7 @@ h3 {
   50% {
     clip-path: inset(8% 0 40% 0);
     transform: translateX(2px);
-    filter: drop-shadow(-1px 0 rgba(167, 139, 250, 0.35));
+    filter: drop-shadow(-1px 0 rgba(232, 182, 106, 0.35));
   }
   100% {
     clip-path: none;
@@ -1061,7 +1072,7 @@ h3 {
   border-top: 1px solid var(--line-soft);
   background: radial-gradient(
     circle at 50% 34%,
-    rgba(124, 58, 237, 0.1),
+    rgba(232, 182, 106, 0.1),
     transparent 32%
   );
 }
@@ -1106,13 +1117,13 @@ h3 {
   display: grid;
   grid-template-rows: minmax(0, 1fr);
   overflow: hidden;
-  border: 1px solid rgba(167, 139, 250, 0.35);
+  border: 1px solid rgba(232, 182, 106, 0.35);
   border-radius: var(--morph-radius);
   background: rgba(10, 8, 19, 0.985);
   box-shadow:
-    0 0 0 1px rgba(124, 58, 237, 0.07),
+    0 0 0 1px rgba(232, 182, 106, 0.07),
     0 38px 120px rgba(0, 0, 0, 0.64),
-    0 0 110px rgba(124, 58, 237, 0.13);
+    0 0 110px rgba(232, 182, 106, 0.13);
   will-change: width, height, border-radius;
 }
 
@@ -1123,8 +1134,8 @@ h3 {
   inset: 0;
   pointer-events: none;
   background:
-    linear-gradient(rgba(167, 139, 250, 0.028) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.028) 1px, transparent 1px);
+    linear-gradient(rgba(232, 182, 106, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.028) 1px, transparent 1px);
   background-size: 32px 32px;
   -webkit-mask-image: linear-gradient(to bottom, #000, transparent 76%);
   mask-image: linear-gradient(to bottom, #000, transparent 76%);
@@ -1168,27 +1179,27 @@ h3 {
     ),
     radial-gradient(
       ellipse 50% 40% at 78% 88%,
-      rgba(124, 58, 237, 0.08),
+      rgba(232, 182, 106, 0.08),
       transparent 70%
     );
 }
 
-/* 02 — the evidence: violet focus + diagonal dependency traces */
+/* 02 — the evidence: amber focus + diagonal dependency traces */
 .case-shell-ambient .amb-1 {
   background:
     repeating-linear-gradient(
       112deg,
-      rgba(167, 139, 250, 0.05) 0 1px,
+      rgba(232, 182, 106, 0.05) 0 1px,
       transparent 1px 36px
     ),
     radial-gradient(
       ellipse 60% 52% at 62% 40%,
-      rgba(124, 58, 237, 0.13),
+      rgba(232, 182, 106, 0.13),
       transparent 68%
     );
 }
 
-/* 03 — the patch: del/add edge light, violet center focus */
+/* 03 — the patch: del/add edge light, amber center focus */
 .case-shell-ambient .amb-2 {
   background:
     linear-gradient(
@@ -1199,7 +1210,7 @@ h3 {
     ),
     radial-gradient(
       ellipse 54% 46% at 50% 52%,
-      rgba(124, 58, 237, 0.11),
+      rgba(232, 182, 106, 0.11),
       transparent 66%
     );
 }
@@ -1214,7 +1225,7 @@ h3 {
     ),
     radial-gradient(
       ellipse 60% 40% at 50% 6%,
-      rgba(124, 58, 237, 0.09),
+      rgba(232, 182, 106, 0.09),
       transparent 65%
     );
 }
@@ -1254,7 +1265,7 @@ h3 {
 .case-story-list::after {
   height: var(--timeline-progress);
   background: linear-gradient(180deg, var(--brand-strong), var(--brand));
-  box-shadow: 0 0 14px rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 14px rgba(232, 182, 106, 0.5);
 }
 
 .case-story-row {
@@ -1312,9 +1323,9 @@ h3 {
 .case-story-row.active .case-story-media {
   opacity: 1;
   filter: none;
-  border-color: rgba(167, 139, 250, 0.44);
+  border-color: rgba(232, 182, 106, 0.44);
   box-shadow: 0 22px 64px rgba(0, 0, 0, 0.46),
-    0 0 52px rgba(124, 58, 237, 0.1);
+    0 0 52px rgba(232, 182, 106, 0.1);
 }
 
 /* chapter evidence fields: real labels, placeholder values */
@@ -1753,7 +1764,7 @@ h3 {
 
 .case-story-row.in-view .case-story-node {
   opacity: 0.78;
-  border-color: rgba(167, 139, 250, 0.45);
+  border-color: rgba(232, 182, 106, 0.45);
   color: var(--brand);
 }
 
@@ -1762,7 +1773,7 @@ h3 {
   border-color: var(--brand);
   background: var(--brand-strong);
   color: #fff;
-  box-shadow: 0 0 22px rgba(167, 139, 250, 0.5);
+  box-shadow: 0 0 22px rgba(232, 182, 106, 0.5);
   transform: scale(1);
 }
 
@@ -2165,7 +2176,7 @@ h3 {
 
 .graph-node.lit {
   stroke: var(--brand);
-  fill: rgba(167, 139, 250, 0.1);
+  fill: rgba(232, 182, 106, 0.1);
 }
 
 .graph-label {
@@ -2343,23 +2354,23 @@ h3 {
   }
 }
 
-/* ------------------------------------------------------------------ security — dark violet vault section */
+/* ------------------------------------------------------------------ security */
 
 .paper-section {
   position: relative;
   background: linear-gradient(
       180deg,
-      rgba(124, 58, 237, 0.09),
-      rgba(124, 58, 237, 0.02) 30%,
+      rgba(232, 182, 106, 0.09),
+      rgba(232, 182, 106, 0.02) 30%,
       transparent
     ),
     var(--bg-raise);
   color: var(--ink);
   padding: 104px 0;
-  border-top: 1px solid rgba(167, 139, 250, 0.25);
+  border-top: 1px solid rgba(232, 182, 106, 0.25);
   border-bottom: 1px solid var(--line-soft);
-  background-image: linear-gradient(rgba(167, 139, 250, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.06) 1px, transparent 1px);
+  background-image: linear-gradient(rgba(232, 182, 106, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.06) 1px, transparent 1px);
   background-size: 28px 28px;
 }
 
@@ -2369,12 +2380,12 @@ h3 {
   background-image:
     radial-gradient(
       340px circle at var(--spotlight-x, 50vw) var(--spotlight-y, 40vh),
-      rgba(167, 139, 250, 0.1),
-      rgba(167, 139, 250, 0.035) 45%,
+      rgba(232, 182, 106, 0.1),
+      rgba(232, 182, 106, 0.035) 45%,
       transparent 70%
     ),
-    linear-gradient(rgba(167, 139, 250, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.06) 1px, transparent 1px);
+    linear-gradient(rgba(232, 182, 106, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.06) 1px, transparent 1px);
   background-size: 100% 100%, 28px 28px, 28px 28px;
   background-attachment: fixed, scroll, scroll;
 }
@@ -2398,7 +2409,7 @@ h3 {
 }
 
 .sec-card:hover {
-  border-color: rgba(167, 139, 250, 0.45);
+  border-color: rgba(232, 182, 106, 0.45);
   transform: translateY(-2px);
 }
 
@@ -2468,8 +2479,8 @@ h3 {
 }
 
 .ev-panel:hover {
-  border-color: rgba(167, 139, 250, 0.4);
-  box-shadow: 0 0 40px rgba(124, 58, 237, 0.12);
+  border-color: rgba(232, 182, 106, 0.4);
+  box-shadow: 0 0 40px rgba(232, 182, 106, 0.12);
 }
 
 .ev-panel .panel-bar {
@@ -2553,10 +2564,10 @@ h3 {
 }
 
 .price-card.hot {
-  border-color: rgba(167, 139, 250, 0.55);
-  background: linear-gradient(180deg, rgba(124, 58, 237, 0.12), transparent 40%),
+  border-color: rgba(232, 182, 106, 0.55);
+  background: linear-gradient(180deg, rgba(232, 182, 106, 0.12), transparent 40%),
     var(--bg-raise);
-  box-shadow: 0 0 60px rgba(124, 58, 237, 0.15);
+  box-shadow: 0 0 60px rgba(232, 182, 106, 0.15);
   position: relative;
 }
 
@@ -2631,7 +2642,7 @@ h3 {
   border-top: 1px solid var(--line-soft);
   background: radial-gradient(
     ellipse 60% 80% at 16% 110%,
-    rgba(124, 58, 237, 0.22),
+    rgba(232, 182, 106, 0.22),
     transparent
   );
 }
@@ -2690,7 +2701,7 @@ h3 {
   border-radius: var(--radius-lg);
   background: var(--bg-panel);
   box-shadow: 0 24px 70px rgba(0, 0, 0, 0.45),
-    0 0 60px rgba(124, 58, 237, 0.12);
+    0 0 60px rgba(232, 182, 106, 0.12);
 }
 
 .cta-demo-bar {
@@ -2728,9 +2739,9 @@ h3 {
   padding: 0 20px;
   text-align: center;
   background:
-    radial-gradient(circle at 50% 45%, rgba(124, 58, 237, 0.2), transparent 35%),
-    linear-gradient(rgba(167, 139, 250, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.045) 1px, transparent 1px),
+    radial-gradient(circle at 50% 45%, rgba(232, 182, 106, 0.2), transparent 35%),
+    linear-gradient(rgba(232, 182, 106, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.045) 1px, transparent 1px),
     var(--bg-inset);
   background-size: 100% 100%, 28px 28px, 28px 28px, 100% 100%;
   color: var(--ink-dim);
@@ -2768,12 +2779,12 @@ h3 {
   display: grid;
   place-items: center;
   padding-left: 4px;
-  border: 1px solid rgba(167, 139, 250, 0.5);
+  border: 1px solid rgba(232, 182, 106, 0.5);
   border-radius: 50%;
   background: var(--brand-soft);
   color: var(--brand);
   font-size: 19px;
-  box-shadow: 0 0 28px rgba(124, 58, 237, 0.2);
+  box-shadow: 0 0 28px rgba(232, 182, 106, 0.2);
 }
 
 @media (max-width: 900px) {
@@ -3015,7 +3026,7 @@ h3 {
   40% {
     clip-path: inset(6% 0 44% 0);
     transform: translate(3px, -2px);
-    filter: drop-shadow(-1px 0 rgba(167, 139, 250, 0.35));
+    filter: drop-shadow(-1px 0 rgba(232, 182, 106, 0.35));
   }
   70% {
     clip-path: inset(0 0 0 0);
@@ -3065,7 +3076,7 @@ h3 {
 
 .price-card:hover {
   transform: translateY(-4px);
-  border-color: rgba(167, 139, 250, 0.45);
+  border-color: rgba(232, 182, 106, 0.45);
 }
 
 /* ledger rows nudge and reveal their status on hover */
@@ -3093,7 +3104,7 @@ h3 {
 }
 
 .term:hover {
-  border-color: rgba(167, 139, 250, 0.4);
+  border-color: rgba(232, 182, 106, 0.4);
   color: var(--ink);
 }
 
@@ -3122,20 +3133,20 @@ h3 {
 }
 
 .chip:hover {
-  transform: translateY(-1px) scale(1.06);
+  border-color: var(--brand);
 }
 
 .chip-verified:hover {
-  box-shadow: 0 0 16px rgba(62, 207, 142, 0.35);
+  border-color: var(--verified);
 }
 
 .chip-red:hover {
-  box-shadow: 0 0 16px rgba(240, 96, 93, 0.3);
+  border-color: var(--diff-red);
 }
 
 /* buttons: light sweep on hover */
 .btn::after {
-  content: "";
+  content: none;
   position: absolute;
   inset: 0;
   border-radius: inherit;
@@ -3169,7 +3180,7 @@ h3 {
 
 .replay-frame:hover {
   transform: scale(1.04);
-  border-color: rgba(167, 139, 250, 0.5);
+  border-color: rgba(232, 182, 106, 0.5);
   z-index: 1;
 }
 
@@ -3185,13 +3196,13 @@ h3 {
 
 .igraph-node:hover rect {
   stroke: var(--brand);
-  fill: rgba(167, 139, 250, 0.14);
+  fill: rgba(232, 182, 106, 0.14);
 }
 
 .igraph-node.focus rect {
   stroke: var(--brand);
   stroke-width: 2;
-  fill: rgba(167, 139, 250, 0.18);
+  fill: rgba(232, 182, 106, 0.18);
 }
 
 .graph-edge {
@@ -3245,7 +3256,7 @@ h3 {
 
 /* registration L-marks in the four corners of a positioned parent */
 .corner-marks {
-  --mk-c: rgba(167, 139, 250, 0.5);
+  --mk-c: rgba(232, 182, 106, 0.5);
   --mk-s: 10px;
   position: absolute;
   inset: 0;
@@ -3278,9 +3289,9 @@ h3 {
   overflow: hidden;
   color: var(--ink-dim);
   background:
-    radial-gradient(circle at 50% 46%, rgba(124, 58, 237, 0.13), transparent 44%),
-    linear-gradient(rgba(167, 139, 250, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.035) 1px, transparent 1px),
+    radial-gradient(circle at 50% 46%, rgba(232, 182, 106, 0.13), transparent 44%),
+    linear-gradient(rgba(232, 182, 106, 0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.035) 1px, transparent 1px),
     var(--bg-inset);
   background-size: 100% 100%, 28px 28px, 28px 28px, 100% 100%;
 }
@@ -3289,16 +3300,16 @@ h3 {
   background:
     var(--tex-scanlines),
     radial-gradient(ellipse 60% 50% at 24% 16%, rgba(240, 96, 93, 0.1), transparent 68%),
-    radial-gradient(circle at 50% 52%, rgba(124, 58, 237, 0.1), transparent 46%),
+    radial-gradient(circle at 50% 52%, rgba(232, 182, 106, 0.1), transparent 46%),
     var(--bg-inset);
 }
 
 .m-art.tone-verified {
   background:
     radial-gradient(ellipse 68% 46% at 50% 88%, rgba(62, 207, 142, 0.1), transparent 68%),
-    radial-gradient(circle at 50% 42%, rgba(124, 58, 237, 0.1), transparent 46%),
-    linear-gradient(rgba(167, 139, 250, 0.03) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.03) 1px, transparent 1px),
+    radial-gradient(circle at 50% 42%, rgba(232, 182, 106, 0.1), transparent 46%),
+    linear-gradient(rgba(232, 182, 106, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.03) 1px, transparent 1px),
     var(--bg-inset);
   background-size: 100% 100%, 100% 100%, 28px 28px, 28px 28px, 100% 100%;
 }
@@ -3321,12 +3332,12 @@ h3 {
 
 .m-art-top {
   top: 0;
-  background: linear-gradient(180deg, rgba(8, 6, 13, 0.85), transparent);
+  background: linear-gradient(180deg, rgba(32, 32, 42, 0.85), transparent);
 }
 
 .m-art-bottom {
   bottom: 0;
-  background: linear-gradient(0deg, rgba(8, 6, 13, 0.88), transparent);
+  background: linear-gradient(0deg, rgba(32, 32, 42, 0.88), transparent);
 }
 
 .m-art-rec {
@@ -3346,7 +3357,7 @@ h3 {
   border-radius: 50%;
   flex: none;
   background: var(--brand);
-  box-shadow: 0 0 10px rgba(167, 139, 250, 0.7);
+  box-shadow: 0 0 10px rgba(232, 182, 106, 0.7);
 }
 
 .tone-bug .m-art-rec i {
@@ -3426,12 +3437,12 @@ h3 {
   display: grid;
   place-items: center;
   padding-left: 3px;
-  border: 1px solid rgba(167, 139, 250, 0.42);
+  border: 1px solid rgba(232, 182, 106, 0.42);
   border-radius: 50%;
   background: var(--brand-soft);
   color: var(--brand);
   font-size: 12px;
-  box-shadow: 0 0 24px rgba(124, 58, 237, 0.16);
+  box-shadow: 0 0 24px rgba(232, 182, 106, 0.16);
 }
 
 .m-art-track {
@@ -3640,7 +3651,7 @@ h3 {
 
 .rg-check {
   fill: var(--bg-raise);
-  stroke: rgba(167, 139, 250, 0.55);
+  stroke: rgba(232, 182, 106, 0.55);
 }
 
 /* ------------------------------------------------------------------
@@ -3678,7 +3689,7 @@ h3 {
   background:
     radial-gradient(ellipse 38% 52% at 10% 34%, rgba(240, 96, 93, 0.06), transparent 70%),
     radial-gradient(ellipse 38% 52% at 90% 38%, rgba(62, 207, 142, 0.06), transparent 70%),
-    radial-gradient(ellipse 72% 58% at 50% 0%, rgba(124, 58, 237, 0.09), transparent 62%);
+    radial-gradient(ellipse 72% 58% at 50% 0%, rgba(232, 182, 106, 0.09), transparent 62%);
 }
 
 /* one texture for the whole room: faint scanlines pooled at the center */
@@ -3751,7 +3762,7 @@ h3 {
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(167, 139, 250, 0.55) 30% 70%,
+    rgba(232, 182, 106, 0.55) 30% 70%,
     transparent
   );
 }
@@ -3768,7 +3779,7 @@ h3 {
   background: linear-gradient(
     180deg,
     transparent,
-    rgba(167, 139, 250, 0.85),
+    rgba(232, 182, 106, 0.85),
     transparent
   );
   animation: spine-drift 2.8s ease-in-out infinite;
@@ -3798,14 +3809,14 @@ h3 {
   transform: translate(-50%, -50%);
   white-space: nowrap;
   padding: 5px 11px;
-  border: 1px solid rgba(167, 139, 250, 0.4);
+  border: 1px solid rgba(232, 182, 106, 0.4);
   border-radius: 99px;
   background: var(--bg-raise);
   font-size: 9.5px;
   letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--brand);
-  box-shadow: 0 0 18px rgba(124, 58, 237, 0.18);
+  box-shadow: 0 0 18px rgba(232, 182, 106, 0.18);
 }
 
 /* shared execution timeline: same three steps, both runs */
@@ -3832,7 +3843,7 @@ h3 {
   height: 9px;
   background: repeating-linear-gradient(
     90deg,
-    rgba(167, 139, 250, 0.22) 0 1px,
+    rgba(232, 182, 106, 0.22) 0 1px,
     transparent 1px 16px
   );
 }
@@ -3888,7 +3899,7 @@ h3 {
   margin: 4px auto 0;
   transform: rotate(45deg);
   background: var(--brand-strong);
-  box-shadow: 0 0 14px rgba(167, 139, 250, 0.55);
+  box-shadow: 0 0 14px rgba(232, 182, 106, 0.55);
 }
 
 /* ------------------------------------------------------------------
@@ -3900,7 +3911,7 @@ h3 {
   padding: 104px 0 120px;
   background: radial-gradient(
       ellipse 72% 44% at 50% 0%,
-      rgba(124, 58, 237, 0.1),
+      rgba(232, 182, 106, 0.1),
       transparent 64%
     );
 }
@@ -3969,7 +3980,7 @@ h3 {
 
 .pr-stage-marks {
   inset: -24px;
-  --mk-c: rgba(167, 139, 250, 0.32);
+  --mk-c: rgba(232, 182, 106, 0.32);
   --mk-s: 12px;
 }
 
@@ -3989,7 +4000,7 @@ h3 {
   letter-spacing: 0.24em;
   text-transform: uppercase;
   color: rgba(62, 207, 142, 0.85);
-  background: rgba(8, 6, 13, 0.72);
+  background: rgba(32, 32, 42, 0.72);
   box-shadow: 0 0 30px rgba(62, 207, 142, 0.12);
 }
 
@@ -4000,8 +4011,8 @@ h3 {
   border: 1px dashed var(--line);
   border-radius: 0;
   background: var(--bg-panel);
-  box-shadow: 0 0 0 1px rgba(124, 58, 237, 0.08),
-    0 24px 60px rgba(0, 0, 0, 0.55), 0 0 80px rgba(124, 58, 237, 0.08);
+  box-shadow: 0 0 0 1px rgba(232, 182, 106, 0.08),
+    0 24px 60px rgba(0, 0, 0, 0.55), 0 0 80px rgba(232, 182, 106, 0.08);
 }
 
 .pr-art-head {
@@ -4261,7 +4272,7 @@ h3 {
   overflow: hidden;
   border-top: none;
   background:
-    radial-gradient(ellipse 60% 80% at 16% 110%, rgba(124, 58, 237, 0.2), transparent 70%),
+    radial-gradient(ellipse 60% 80% at 16% 110%, rgba(232, 182, 106, 0.2), transparent 70%),
     radial-gradient(ellipse 46% 60% at 82% 18%, rgba(62, 207, 142, 0.05), transparent 70%);
 }
 
@@ -4283,8 +4294,8 @@ h3 {
   inset: 0;
   pointer-events: none;
   background-image:
-    linear-gradient(rgba(167, 139, 250, 0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(167, 139, 250, 0.05) 1px, transparent 1px);
+    linear-gradient(rgba(232, 182, 106, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(232, 182, 106, 0.05) 1px, transparent 1px);
   background-size: 56px 56px;
   -webkit-mask-image: linear-gradient(180deg, #000, transparent 62%);
   mask-image: linear-gradient(180deg, #000, transparent 62%);
@@ -4326,7 +4337,7 @@ h3 {
     background: linear-gradient(
       90deg,
       transparent,
-      rgba(167, 139, 250, 0.55),
+      rgba(232, 182, 106, 0.55),
       transparent
     );
   }
@@ -4455,6 +4466,7 @@ h3 {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .animate-spin, .animate-pulse { animation: none; }
   .reveal.in,
   .case-scene.on,
   .hero h1 em,
