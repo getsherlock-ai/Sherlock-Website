@@ -4,6 +4,8 @@ Marketing site and product entry point for Sherlock — a GitHub App that turns 
 
 ## Run
 
+Use Node.js 22 or later (required by Wrangler).
+
 ```sh
 npm install
 cp .env.example .env.local   # fill in the values
@@ -77,6 +79,15 @@ frontend first leaves the protected dashboard without its required APIs.
 ### Hosting
 
 The app now requires a server-capable Next.js runtime (Route Handlers, Server Components, Middleware, cookies, redirects, Server Actions). A static-only host serving an exported `out/` directory is no longer sufficient.
+
+Run `npm run build:cloudflare` to verify the full Cloudflare Worker build without
+uploading or deploying it. Cloudflare Builds can use this as its build command.
+Keep `package-lock.json` committed so `npm ci` uses the verified dependency versions.
+
+OpenNext Cloudflare 1.20.13 fixes the incorrect Next.js 15 support cutoff that
+blocked builds after October 21, 2026. This project stays on the patched Next.js
+15.5 release; no unsupported-version override is needed. See the
+[OpenNext release notes](https://github.com/opennextjs/opennextjs-cloudflare/releases/tag/@opennextjs%2Fcloudflare@1.20.13).
 
 ## Notes
 
