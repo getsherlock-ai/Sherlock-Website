@@ -7,9 +7,9 @@ import Logo from "./Logo";
 export default function Footer() {
   const pathname = usePathname();
 
-  // The dashboard and investigation pages are a self-contained app shell
-  // without marketing chrome.
+  // Home owns its small footer; app routes use a self-contained shell.
   if (
+    pathname === "/" ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/investigations")
   ) {

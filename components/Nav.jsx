@@ -22,9 +22,9 @@ export default function Nav() {
   const isActive = (href) =>
     pathname === href || pathname === `${href}/` ? "active" : "";
 
-  // The dashboard and investigation pages are a self-contained app shell
-  // with their own sidebar chrome.
+  // Home has its own minimal header; app routes use the sidebar shell.
   if (
+    pathname === "/" ||
     pathname.startsWith("/dashboard") ||
     pathname.startsWith("/investigations")
   ) {
