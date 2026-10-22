@@ -6,7 +6,9 @@ import type {
   PointerEvent as ReactPointerEvent,
   ReactNode,
 } from "react";
-import { useCallback, useEffect, useId, useRef, useState } from "react";
+import { useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
+import type { ThemedToken } from "shiki";
+import { highlightDiff, type HighlightedDiff } from "../diffHighlight";
 import { parseUnifiedDiff } from "../diffParser";
 import type { ParsedDiffFile, ParsedDiffLine } from "../diffParser";
 
@@ -21,7 +23,7 @@ export default function CodeDiff({
   diffTruncated?: boolean;
   className?: string;
 }) {
-  const files = diff ? parseUnifiedDiff(diff) : [];
+  const files = useMemo(() => diff ? parseUnifiedDiff(diff) : [], [diff]);
   const hasDiff = files.length > 0;
   const [activeFileIndex, setActiveFileIndex] = useState(0);
   const activeFile = hasDiff
@@ -72,6 +74,17 @@ function DiffFileViewer({
   activeFileIndex: number;
   onActiveFileChange: (index: number) => void;
 }) {
+  const [highlighted, setHighlighted] = useState<{
+    file: ParsedDiffFile; tokens: HighlightedDiff;
+  } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    void highlightDiff(activeFile).then((tokens) => {
+      if (!cancelled) setHighlighted({ file: activeFile, tokens });
+    });
+    return () => { cancelled = true; };
+  }, [activeFile]);
+
   return (
     <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden rounded-sm border border-border">
       <div className="native-scrollbar-hidden flex shrink-0 overflow-x-auto border-b border-border bg-surface">
@@ -94,7 +107,8 @@ function DiffFileViewer({
       <PersistentDiffScrollArea>
         <div className="inline-block min-w-full align-top font-mono text-xs">
           {activeFile.lines.map((line, index) => (
-            <DiffLineRow key={`${line.code}-${index}`} line={line} />
+            <DiffLineRow key={`${line.code}-${index}`} line={line}
+              tokens={highlighted?.file === activeFile ? highlighted.tokens.get(index) : undefined} />
           ))}
         </div>
       </PersistentDiffScrollArea>
@@ -367,7 +381,7 @@ function getScrollbarThumb(
   };
 }
 
-function DiffLineRow({ line }: { line: ParsedDiffLine }) {
+function DiffLineRow({ line, tokens }: { line: ParsedDiffLine; tokens?: ThemedToken[] }) {
   const isAdd = line.type === "add";
   const isDelete = line.type === "delete";
   const isMetadata = line.type === "metadata";
@@ -381,7 +395,7 @@ function DiffLineRow({ line }: { line: ParsedDiffLine }) {
             ? "bg-red-950/40 text-red-200"
             : isMetadata
               ? "bg-surface text-muted"
-              : "text-muted"
+              : "text-foreground"
       }`}
     >
       <span
@@ -400,7 +414,14 @@ function DiffLineRow({ line }: { line: ParsedDiffLine }) {
       </span>
       <code className="whitespace-pre px-3 py-1.5">
         {getLinePrefix(line.type)}
-        {line.code}
+        {tokens ? tokens.map((token, index) => (
+          <span key={index} style={{
+            color: token.color,
+            fontStyle: token.fontStyle && token.fontStyle & 1 ? "italic" : undefined,
+            fontWeight: token.fontStyle && token.fontStyle & 2 ? "bold" : undefined,
+            textDecoration: token.fontStyle && token.fontStyle & 4 ? "underline" : undefined,
+          }}>{token.content}</span>
+        )) : line.code}
       </code>
     </div>
   );
